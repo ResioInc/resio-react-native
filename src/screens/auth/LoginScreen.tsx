@@ -38,30 +38,12 @@ export const LoginScreen: React.FC = () => {
       return;
     }
 
-    // TEMPORARY: Bypass authentication due to MMKV issue
-    // TODO: Re-enable when MMKV is properly configured
-    
-    // Mock successful login by setting a fake auth state
-    dispatch(setUser({
-      id: 1,
-      email: email,
-      fullName: 'Test User',
-      propertyId: 1,
-      type: UserType.RESIDENT,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    } as User));
-    
-    // Navigation handled by root navigator based on auth state
-
-    /* ORIGINAL CODE - COMMENTED OUT DUE TO MMKV ERROR
     try {
       await dispatch(login({ email, password })).unwrap();
       // Navigation handled by root navigator based on auth state
     } catch (error: any) {
       Alert.alert('Login Failed', error.message || 'Please try again');
     }
-    */
   };
 
   return (

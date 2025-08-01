@@ -16,9 +16,9 @@ export interface User {
 }
 
 export enum UserType {
-  STUDENT = 'student',
-  GUARANTOR = 'guarantor',
-  RESIDENT = 'resident',
+  RESIDENT = 1,
+  GUEST = 2,
+  GUARANTOR = 3,
 }
 
 // Property related types
@@ -275,10 +275,11 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
+  success: boolean;
+  response: {
+    accessToken: string;
+    user: User;
+  };
 }
 
 export interface SignupRequest {
@@ -286,6 +287,18 @@ export interface SignupRequest {
   name: string;
   password: string;
   userType: UserType;
+}
+
+export interface CheckLeaseResponse {
+  success: boolean;
+  response: {
+    hasLease: boolean;
+  };
+}
+
+// Enhanced error types for better error handling
+export interface AuthError extends ApiError {
+  type: 'INVALID_CREDENTIALS' | 'NETWORK_ERROR' | 'SERVER_ERROR' | 'VALIDATION_ERROR';
 }
 
 // App State types

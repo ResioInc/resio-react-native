@@ -1,5 +1,5 @@
 import { BaseAPI } from './BaseAPI';
-import { LoginResponse, User, SignupRequest } from '@/types';
+import { LoginResponse, User, SignupRequest, CheckLeaseResponse } from '@/types';
 import { AuthEndpoints } from './endpoints/AuthEndpoints';
 
 class AuthAPIService extends BaseAPI {
@@ -26,6 +26,11 @@ class AuthAPIService extends BaseAPI {
     } catch (error) {
       // Logout should succeed even if API fails
     }
+  }
+
+  async checkLease(): Promise<CheckLeaseResponse> {
+    const response = await this.get<CheckLeaseResponse>(AuthEndpoints.checkLease().url);
+    return response;
   }
 
   async signup(data: SignupRequest): Promise<{ success: boolean; message: string }> {

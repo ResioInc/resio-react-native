@@ -55,7 +55,7 @@ const IS_PRODUCTION = ENVIRONMENT === 'PRODUCTION';
 // Main configuration object
 export const AppConfig: AppConfigType = {
   API: {
-    BASE_URL: Config.API_BASE_URL || 'https://api.portal.resio.com',
+    BASE_URL: Config.API_BASE_URL || (IS_PRODUCTION ? 'https://api.portal.resio.com' : 'https://api.portal.staging.resio.com'),
     TIMEOUT: parseInt(Config.API_TIMEOUT || '30000', 10),
     VERSION: 'v1',
   },
