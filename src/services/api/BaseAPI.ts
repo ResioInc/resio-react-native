@@ -31,9 +31,18 @@ export class BaseAPI {
     // Request interceptor
     this.api.interceptors.request.use(
       async (config) => {
-        const token = await SecureStorage.getInstance().getToken();
-        if (token && config.headers) {
-          config.headers.Authorization = `Bearer ${token}`;
+        // Don't add auth headers for authentication endpoints
+        const isAuthEndpoint = config.url?.includes('/login') || 
+                              config.url?.includes('/signup') || 
+                              config.url?.includes('/forgot-password') ||
+                              config.url?.includes('/users/set-password') ||
+                              config.url?.includes('/users/verification');
+        
+        if (!isAuthEndpoint) {
+          const token = await SecureStorage.getInstance().getToken();
+          if (token && config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
         }
         return config;
       },

@@ -1,6 +1,7 @@
 import { BaseAPI } from './BaseAPI';
 import { LoginResponse, User, SignupRequest, CheckLeaseResponse } from '@/types';
 import { AuthEndpoints } from './endpoints/AuthEndpoints';
+import { SecureStorage } from '@services/storage/SecureStorage';
 
 class AuthAPIService extends BaseAPI {
   private static authInstance: AuthAPIService;
@@ -13,6 +14,9 @@ class AuthAPIService extends BaseAPI {
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
+    // Clear any existing tokens before login attempt
+    await SecureStorage.getInstance().clearTokens();
+    
     const response = await this.post<LoginResponse>(AuthEndpoints.login().url, {
       email,
       password,

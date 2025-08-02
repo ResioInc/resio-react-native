@@ -33,18 +33,22 @@ export const login = createAsyncThunk(
         return rejectWithValue('Only residents are allowed to use this app');
       }
       
-      // Step 4: Verify user has valid lease
+      // Step 4: Save credentials securely (needed for lease check)
+      await SecureStorage.getInstance().saveToken(accessToken);
+      
+      // Step 5: Verify user has valid lease
       const leaseResponse = await AuthAPI.checkLease();
       if (!leaseResponse.success || !leaseResponse.response?.hasLease) {
         return rejectWithValue('You do not have a valid lease. Please contact your property manager.');
       }
       
-      // Step 5: Save credentials securely
-      await SecureStorage.getInstance().saveToken(accessToken);
-      
       return loginResponse;
     } catch (error: any) {
       // Handle different error types
+      if (error.response?.data?.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      
       if (error.code) {
         return rejectWithValue(error.message || 'Authentication failed');
       }
