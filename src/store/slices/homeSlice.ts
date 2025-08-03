@@ -23,15 +23,49 @@ export const fetchHomeData = createAsyncThunk(
       propertyId ? HomeAPI.getUnreadBulletinsCount(propertyId) : Promise.resolve(0),
     ]);
     
-    return { events, bulletins, resources, unreadBulletinsCount };
+    // Filter out any undefined/null events
+    const validEvents = events.filter((event) => event && event.id);
+    
+    console.log('🏠 fetchHomeData - Events received:', events);
+    console.log('🏠 fetchHomeData - Valid events:', validEvents);
+    console.log('🏠 fetchHomeData - Events count:', validEvents.length);
+    
+    if (events.length !== validEvents.length) {
+      console.warn('🏠 fetchHomeData - Filtered out', events.length - validEvents.length, 'invalid events');
+    }
+    
+    return { events: validEvents, bulletins, resources, unreadBulletinsCount };
   }
 );
 
 export const fetchEvents = createAsyncThunk(
   'home/fetchEvents',
-  async () => {
-    const events = await HomeAPI.getEvents();
-    return events;
+  async (_, { rejectWithValue }) => {
+    try {
+      const events = await HomeAPI.getEvents();
+      
+      // Filter out any undefined/null events and sort by startTime
+      const validEvents = events.filter((event) => event && event.id);
+      const sortedEvents = validEvents.sort((event1, event2) => {
+        const date1 = event1.startTime ? new Date(event1.startTime) : new Date(0);
+        const date2 = event2.startTime ? new Date(event2.startTime) : new Date(0);
+        return date1.getTime() - date2.getTime();
+      });
+      
+      console.log('🏠 Redux fetchEvents - Original events:', events);
+      console.log('🏠 Redux fetchEvents - Valid events after filter:', validEvents);
+      console.log('🏠 Redux fetchEvents - Sorted events:', sortedEvents);
+      
+      if (events.length !== validEvents.length) {
+        console.warn('🏠 Redux fetchEvents - Filtered out', events.length - validEvents.length, 'invalid events');
+      }
+      
+      return sortedEvents;
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to fetch events'
+      );
+    }
   }
 );
 
@@ -54,6 +88,20 @@ export const fetchUnreadBulletinsCount = createAsyncThunk(
   async (propertyId: number) => {
     const count = await HomeAPI.getUnreadBulletinsCount(propertyId);
     return count;
+  }
+);
+
+export const setEventRSVP = createAsyncThunk(
+  'home/setEventRSVP',
+  async ({ eventId, rsvp }: { eventId: number; rsvp: boolean }, { rejectWithValue }) => {
+    try {
+      await HomeAPI.setEventRSVP(eventId, rsvp);
+      return { eventId, rsvp };
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to update RSVP'
+      );
+    }
   }
 );
 
@@ -97,8 +145,18 @@ const homeSlice = createSlice({
     
     // Fetch Events
     builder
+      .addCase(fetchEvents.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(fetchEvents.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.events = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchEvents.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string || 'Failed to fetch events';
       });
     
     // Fetch Bulletins
@@ -121,6 +179,19 @@ const homeSlice = createSlice({
     builder
       .addCase(fetchUnreadBulletinsCount.fulfilled, (state, action) => {
         state.unreadBulletinsCount = action.payload;
+      });
+    
+    // Set Event RSVP
+    builder
+      .addCase(setEventRSVP.fulfilled, (state, action) => {
+        const { eventId, rsvp } = action.payload;
+        const event = state.events.find(e => e.id === eventId);
+        if (event) {
+          event.rsvp = rsvp;
+        }
+      })
+      .addCase(setEventRSVP.rejected, (state, action) => {
+        state.error = action.payload as string || 'Failed to update RSVP';
       });
   },
 });

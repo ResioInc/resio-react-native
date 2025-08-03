@@ -14,12 +14,22 @@ class HomeAPIService extends BaseAPI {
   async getEvents(): Promise<Event[]> {
     // Match iOS: Endpoint(domain: .resio(.v1), path: "users/events")
     const response = await this.get<{ response: Event[] }>('/api/v1/users/events');
+    console.log('🎉 HomeAPI.getEvents() - Raw API Response:', response);
+    console.log('🎉 HomeAPI.getEvents() - Events Array:', response.response);
     return response.response || [];
   }
 
   async getEvent(eventId: number): Promise<Event> {
     const response = await this.get<{ response: Event }>(`/api/v1/users/events/${eventId}`);
     return response.response;
+  }
+
+  async setEventRSVP(eventId: number, rsvp: boolean): Promise<void> {
+    // Match iOS: Endpoint(domain: .resio(.v1), path: "users/events/rsvp")
+    await this.patch('/api/v1/users/events/rsvp', {
+      eventId,
+      rsvp
+    });
   }
 
   async getBulletins(propertyId?: number, pageNum: number = 0): Promise<Bulletin[]> {

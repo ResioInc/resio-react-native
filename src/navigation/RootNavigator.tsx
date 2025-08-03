@@ -6,8 +6,9 @@ import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator } from './MainTabNavigator';
 import { BulletinsListScreen } from '@/screens/bulletins/BulletinsListScreen';
 import { BulletinDetailScreen } from '@/screens/bulletins/BulletinDetailScreen';
+import { EventDetailScreen } from '@/screens/events/EventDetailScreen';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
-import { Bulletin } from '@/types';
+import { Bulletin, Event } from '@/types';
 import { notificationStrings } from '@/constants/strings';
 
 export type RootStackParamList = {
@@ -17,6 +18,10 @@ export type RootStackParamList = {
   BulletinsList: undefined;
   BulletinDetail: {
     bulletin: Bulletin;
+  };
+  // Events screens
+  EventDetail: {
+    event: Event;
   };
 };
 
@@ -81,6 +86,14 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen 
             name="BulletinDetail" 
             component={BulletinDetailScreen}
+            options={{
+              headerShown: false,
+              presentation: 'modal', // iOS-style modal presentation
+            }}
+          />
+          <Stack.Screen 
+            name="EventDetail" 
+            component={EventDetailScreen}
             options={{
               headerShown: false,
               presentation: 'modal', // iOS-style modal presentation

@@ -30,14 +30,8 @@ export interface File {
   label: string;
 }
 
-export interface Event {
-  id: number;
-  title: string;
-  startTime: Date;
-  location?: string;
-  imageUrl?: string;
-  rsvp?: boolean;
-}
+// Re-export Event and Photo from main types file
+export type { Event, Photo } from './index';
 
 export interface CommunityResource {
   id: number;

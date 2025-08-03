@@ -201,16 +201,36 @@ export enum MaintenanceStatus {
   CANCELLED = 'cancelled',
 }
 
-// Event related types
+// Event related types (matching iOS Event model)
 export interface Event {
   id: number;
-  title: string;
-  description: string;
-  startTime: string;
-  endTime?: string;
+  propertyId: number;
+  name?: string; // This is the title
   location?: string;
-  imageUrl?: string;
-  category?: string;
+  address?: string;
+  startTime?: string; // ISO date string from API
+  startTimeLocal?: string;
+  startTimeLocalFormatted?: string;
+  endTime?: string;
+  endTimeLocal?: string;
+  endTimeLocalFormatted?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  description?: string; // API field name
+  descriptionHTML?: string; // API: descriptionHtml
+  responseDescription?: string; // Legacy field name
+  rsvp: boolean;
+  rsvpLimit?: number;
+  nRsvps?: number; // Number of RSVPs
+  nPhotos?: number; // Number of photos
+  photos?: Photo[];
+}
+
+// Photo interface for events
+export interface Photo {
+  id: number;
+  photoUrl: string;
+  label?: string;
 }
 
 // Community resource types

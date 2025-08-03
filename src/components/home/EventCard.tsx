@@ -2,7 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Event } from '@/types/home';
-import { COLORS, PADDING, SCREEN_WIDTH, CARD_STYLES } from '@/constants/homeConstants';
+import { useAppDispatch } from '@/store';
+import { setEventRSVP } from '@/store/slices/homeSlice';
+import { COLORS, PADDING, SCREEN_WIDTH } from '@/constants/homeConstants';
+import { eventStrings } from '@/constants/strings';
 
 interface EventCardProps {
   event: Event;
@@ -10,16 +13,44 @@ interface EventCardProps {
 }
 
 export const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
-  const formatDay = (date: Date): string => {
-    const options: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      month: 'short', 
-      day: 'numeric' 
-    };
-    return date.toLocaleDateString('en-US', options);
-  };
+  // Guard against undefined event FIRST - before any other code
+  if (!event) {
+    console.error('EventCard received undefined event');
+    return null;
+  }
 
-  const formatTime = (date: Date): string => {
+  const dispatch = useAppDispatch();
+
+  // Debug logs (remove these in production)
+  if (__DEV__) {
+    console.log('🎫 EventCard - Rendering event:', event);
+    console.log('🎫 EventCard - Event photos:', event?.photos);
+  }
+
+  // iOS rsvpTitle() equivalent
+  const getRSVPTitle = (): string | null => {
+    const total = event?.rsvpLimit ?? 0;
+    const taken = event?.nRsvps ?? 0;
+    const remaining = total - taken;
+    const isAttending = event?.rsvp;
+
+    if (total <= 0) return null;
+
+    if (isAttending) {
+      console.log('eventStrings.rsvp.success: ', eventStrings?.rsvp?.success);
+      return eventStrings?.rsvp?.success;
+    } else if (remaining > 0) {
+      return remaining === 1 ? eventStrings?.subtitle?.spotsLeftSingular : eventStrings?.subtitle?.spotsLeft?.(remaining);
+    } else {
+      return eventStrings?.subtitle?.full;
+    }
+  };
+ // temporary fix for import issue
+   const formatTime = (dateString?: string): string | null => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    
+    // iOS format: "2:30 PM"
     return date.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
@@ -27,57 +58,123 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
     });
   };
 
-  const getRSVPTitle = (): string => {
-    return event.rsvp ? 'Going' : 'Not Going';
+  const handleRSVPToggle = async () => {
+    if (!event?.id) return;
+    
+    try {
+      await dispatch(setEventRSVP({ 
+        eventId: event.id, 
+        rsvp: !event.rsvp 
+      })).unwrap();
+    } catch (error) {
+      console.error('Failed to update RSVP:', error);
+    }
   };
 
-  // iOS calculates card size within the collection view width context
-  // This will be handled by the parent ScrollView's contentContainerStyle
+  // temporary fix for import issue
+   const formatRelativeDate = (dateString?: string): string => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    
+    // iOS logic: Calendar.current.isDateInYesterday(self)
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    }
+    
+    // iOS logic: within last 24 hours -> getHourString() "h:mm a"
+    const diffTime = now.getTime() - date.getTime();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    if (diffTime >= 0 && diffTime < twentyFourHours) {
+      // iOS format: "h:mm a" (e.g., "2:30 PM")
+      return date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      }).toLowerCase().replace('am', ' AM').replace('pm', ' PM');
+    }
+    
+    // iOS logic: older dates -> getTodayShortString() "MMM d" with ordinals
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const day = date.getDate();
+    const ordinalSuffix = (n: number) => {
+      if (n >= 11 && n <= 13) return 'th';
+      switch (n % 10) {
+        case 1: return 'st';
+        case 2: return 'nd'; 
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+    return `${month} ${day}${ordinalSuffix(day)}`;
+  };
+
+  // iOS imageURL equivalent - first photo
+  const imageUrl = event?.photos && event.photos.length > 0 ? event.photos[0]?.photoUrl : undefined;
+
+  const rsvpTitle = getRSVPTitle();
+  const formattedDay = formatRelativeDate(event?.startTime);
+  const formattedTime = formatTime(event?.startTime);
 
   return (
     <TouchableOpacity 
-      style={styles.card} 
+      style={styles.containerView} 
       onPress={() => onPress(event)}
       accessibilityRole="button"
-      accessibilityLabel={`Event: ${event.title} on ${event.startTime.toDateString()}`}
+      accessibilityLabel={`Event: ${event?.name || 'Event'} on ${formattedDay}`}
     >
+      {/* Background Image */}
       <ImageBackground 
-        source={event.imageUrl ? { uri: event.imageUrl } : undefined}
-        style={styles.backgroundImage}
+        source={imageUrl ? { uri: imageUrl } : undefined}
+        style={styles.backgroundImageView}
         imageStyle={styles.backgroundImageStyle}
+        // No defaultSource since we handle missing images with background color
       >
-        {/* Dark Overlay - Matches iOS GradientShield */}
-        <View style={styles.overlay} />
+        {/* iOS GradientShield - alpha 0.9, clear to black gradient */}
+        <View style={styles.gradientShield} />
         
-        {/* Content Stack - Matches iOS stackView */}
-        <View style={styles.contentStack}>
-          {/* Pre-title (RSVP Status) */}
-          <Text style={styles.pretitle}>{getRSVPTitle()}</Text>
+        {/* iOS stackView - vertical with .Padding.padding2 spacing */}
+        <View style={styles.stackView}>
+          {/* Pre-title (RSVP Status) - iOS: .primary(withSize: 13.0), .Text.overDarkImage */}
+          {rsvpTitle && (
+            <TouchableOpacity onPress={handleRSVPToggle} activeOpacity={0.7}>
+              <Text style={styles.pretitleLabel}>{rsvpTitle}</Text>
+            </TouchableOpacity>
+          )}
           
-          {/* Title Stack with Checkmark */}
-          <View style={styles.titleStack}>
-            {event.rsvp && (
+          {/* Title Stack - iOS: spacing 10, alignment .center */}
+          <View style={styles.titleStackView}>
+            {/* Checkmark - iOS: 24pt icon, .Text.overDarkImage */}
+            {event?.rsvp && (
               <Icon 
                 name="checkmark-circle" 
-                size={PADDING.padding6} 
+                size={24} 
                 color="#FFFFFF" 
-                style={styles.checkmark}
+                style={styles.checkmarkImageView}
               />
             )}
-            <Text style={styles.title} numberOfLines={2}>
-              {formatDay(event.startTime)}
+            {/* Title - iOS: .secondary(withSize: 18.0), .Text.overDarkImage, numberOfLines = 2 */}
+            <Text style={styles.titleLabel} numberOfLines={2}>
+              {formattedDay}
             </Text>
           </View>
           
-          {/* Subtitle (Event Name) */}
-          <Text style={styles.subtitle} numberOfLines={2}>
-            {event.title}
-          </Text>
+          {/* Subtitle (Event Name) - iOS: .primary(withSize: 13.0), .Text.overDarkImage, numberOfLines = 2 */}
+          {event?.name && (
+            <Text style={styles.subtitleLabel} numberOfLines={2}>
+              {event.name}
+            </Text>
+          )}
           
-          {/* Detail (Time) */}
-          <Text style={styles.detail}>
-            {formatTime(event.startTime)}
-          </Text>
+          {/* Detail (Time) - iOS: .primary(withSize: 12.0), .Text.overDarkImage */}
+          {formattedTime && (
+            <Text style={styles.detailLabel}>
+              {formattedTime}
+            </Text>
+          )}
         </View>
       </ImageBackground>
     </TouchableOpacity>
@@ -85,64 +182,98 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
 };
 
 const styles = StyleSheet.create({
-  card: {
-    // iOS calculation: (frame.size.width - .Padding.padding4) / 2 gives TOTAL slot size
-    // This includes the card content + its margins
-    // Card content = slot size - margins (8px left + 8px right = 16px total)
-    width: (SCREEN_WIDTH - PADDING.padding4) / 2 - PADDING.padding4,
-    height: (SCREEN_WIDTH - PADDING.padding4) / 2 - PADDING.padding4,
-    // iOS: containerView has .Padding.padding2 margin on all sides
-    margin: PADDING.padding2, // 8px margin creates spacing between cards
-    overflow: 'hidden',
-    ...CARD_STYLES, // iOS CardView styling (background, border, shadow, borderRadius)
+  // iOS: containerView with .Background.primary, masksToBounds, cornerRadius
+  containerView: {
+    backgroundColor: COLORS.background, // iOS: .Background.primary
+    borderRadius: 14, // iOS: CardView.cornerRadius
+    overflow: 'hidden', // iOS: layer.masksToBounds = true
+    // iOS calculation: (frame.size.width - .Padding.padding4) / 2
+    // Match iOS exactly: 16pt accounts for the gap between cards
+    width: (SCREEN_WIDTH - PADDING.padding4) / 2,
+    aspectRatio: 1, // iOS: square (width: edge, height: edge)
+    // No horizontal margin - let the scroll content padding handle the edge spacing
+    marginHorizontal: 0,
+        // React Native: Account for scroll content padding (8pt left/right) + card margins (8pt each side)
+    // Available width = SCREEN_WIDTH - scroll padding (16pt) - total card margins (32pt for 2 cards)
+    width: (SCREEN_WIDTH - PADDING.padding2 * 2 - PADDING.padding2 * 4) / 2,
+    aspectRatio: 1, // iOS: square (width: edge, height: edge)
+    // iOS: .Padding.padding2 margin from containerView.layoutHelpers.pinEdgesToView(contentView, constant: .Padding.padding2)
+    marginHorizontal: PADDING.padding2,
   },
-  backgroundImage: {
+  
+  // iOS: backgroundImageView with .scaleAspectFill, clipsToBounds
+  backgroundImageView: {
     flex: 1,
-    justifyContent: 'flex-end',
+    width: '100%',
+    height: '100%',
   },
   backgroundImageStyle: {
-    borderRadius: 14, // iOS CornerRadius.card
+    // ImageBackground resizeMode is set to 'cover' by default (= scaleAspectFill)
   },
-  overlay: {
+  
+  // iOS: GradientShield with alpha 0.9, clear to black gradient
+  gradientShield: {
     position: 'absolute',
-    top: PADDING.padding5, // Matches iOS gradient positioning
+    top: PADDING.padding5, // iOS: constant: .Padding.padding5 (20pt)
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.55)', // Dark overlay to ensure text readability
+    // Linear gradient approximation: clear at top, black at bottom with alpha 0.9
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
-  contentStack: {
-    padding: PADDING.padding4,
-    gap: PADDING.padding2, // iOS .spacing = .Padding.padding2
+  
+  // iOS: stackView with .vertical axis, .Padding.padding2 spacing
+  stackView: {
+    position: 'absolute',
+    left: PADDING.padding4, // iOS: leadingAnchor constant: .Padding.padding4
+    right: PADDING.padding4, // iOS: trailingAnchor constant: -.Padding.padding4  
+    bottom: PADDING.padding4, // iOS: bottomAnchor constant: -.Padding.padding4
+    gap: PADDING.padding2, // iOS: stack.spacing = .Padding.padding2 (8pt)
   },
-  pretitle: {
+  
+  // iOS: pretitleLabel with .primary(withSize: 13.0), .Text.overDarkImage
+  pretitleLabel: {
     fontSize: 13,
-    color: '#FFFFFF', // iOS .Text.overDarkImage
-    fontWeight: '400',
+    fontWeight: '400', // iOS primary font weight
+    color: '#FFFFFF', // iOS: .Text.overDarkImage
+    lineHeight: 16,
   },
-  titleStack: {
+  
+  // iOS: titleStackView with spacing 10, alignment .center
+  titleStackView: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10, // Matches iOS spacing
+    gap: 10, // iOS: stack.spacing = 10
   },
-  checkmark: {
-    width: PADDING.padding6,
-    height: PADDING.padding6,
+  
+  // iOS: checkmarkImageView 24pt width/height
+  checkmarkImageView: {
+    width: 24, // iOS: .Padding.padding6 = 24pt
+    height: 24,
   },
-  title: {
+  
+  // iOS: titleLabel with .secondary(withSize: 18.0), .Text.overDarkImage, numberOfLines = 2
+  titleLabel: {
     fontSize: 18,
-    fontWeight: '600', // Matches iOS .secondary font
-    color: '#FFFFFF',
+    fontWeight: '600', // iOS secondary font (semi-bold)
+    color: '#FFFFFF', // iOS: .Text.overDarkImage
+    lineHeight: 22,
     flex: 1,
   },
-  subtitle: {
+  
+  // iOS: subtitleLabel with .primary(withSize: 13.0), .Text.overDarkImage, numberOfLines = 2
+  subtitleLabel: {
     fontSize: 13,
-    fontWeight: '400',
-    color: '#FFFFFF',
+    fontWeight: '400', // iOS primary font weight
+    color: '#FFFFFF', // iOS: .Text.overDarkImage
+    lineHeight: 16,
   },
-  detail: {
+  
+  // iOS: detailLabel with .primary(withSize: 12.0), .Text.overDarkImage
+  detailLabel: {
     fontSize: 12,
-    fontWeight: '400',
-    color: '#FFFFFF',
+    fontWeight: '400', // iOS primary font weight
+    color: '#FFFFFF', // iOS: .Text.overDarkImage
+    lineHeight: 15,
   },
 });

@@ -7,10 +7,17 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
+    "start:reset": "react-native start --reset-cache",
+    "clean": "cd ios && xcodebuild clean && cd .. && cd android && ./gradlew clean && cd ..",
+    "clean:ios": "cd ios && xcodebuild clean && rm -rf ~/Library/Developer/Xcode/DerivedData",
+    "clean:android": "cd android && ./gradlew clean",
+    "clean:metro": "npx react-native start --reset-cache",
+    "clean:all": "npm run clean && rm -rf node_modules && npm install && npx react-native start --reset-cache",
+    "rebuild:ios": "npm run clean:ios && npm run ios",
+    "rebuild:android": "npm run clean:android && npm run android",
     "test": "jest"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native/new-app-screen": "0.80.1",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",

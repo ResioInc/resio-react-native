@@ -23,7 +23,6 @@ import {
   SectionTitle,
 } from '@/components';
 import { 
-  mockEvents, 
   mockResources, 
   mockConnections 
 } from '@/data/mockHomeData';
@@ -36,6 +35,7 @@ import {
   SHADOW,
   SCREEN_WIDTH,
 } from '@/constants/homeConstants';
+import { homeStrings } from '@/constants';
 
 type RootNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -46,6 +46,20 @@ export const HomeScreen: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   const { bulletins, events, resources, unreadBulletinsCount, isLoading } = useAppSelector((state) => state.home);
   const { scrollY, animations } = useHeaderAnimation();
+
+  // Log events data to see what we're getting
+  console.log('🏡 HomeScreen - Events from Redux:', events);
+  console.log('🏡 HomeScreen - Events count:', events.length);
+  
+  // Check for undefined events
+  const undefinedEvents = events.filter(event => !event);
+  if (undefinedEvents.length > 0) {
+    console.error('🏡 HomeScreen - Found undefined events:', undefinedEvents.length);
+  }
+  
+  if (events.length > 0) {
+    console.log('🏡 HomeScreen - First event:', events[0]);
+  }
 
   // Fetch home data when component mounts or when user changes
   useEffect(() => {
@@ -60,9 +74,8 @@ export const HomeScreen: React.FC = () => {
   }, [navigation]);
 
   const handleEventPress = useCallback((event: Event) => {
-    // TODO: Navigate to Event detail screen
-    console.log('Navigate to Event:', event.title);
-  }, []);
+    navigation.navigate('EventDetail', { event });
+  }, [navigation]);
 
   const handleWiFiPress = useCallback(() => {
     // TODO: Navigate to WiFi Setup screen
@@ -146,26 +159,28 @@ export const HomeScreen: React.FC = () => {
 
         {/* Events Section - Consistent padding with other sections */}
         <View style={styles.eventsSection}>
-          <SectionTitle title="Upcoming Events" />
+          <SectionTitle title={homeStrings.upcomingEvents.title} />
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.eventsScrollContainer}
             style={styles.eventsCollectionView}
           >
-            {mockEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                onPress={handleEventPress}
-              />
-            ))}
+            {events
+              .filter((event) => event && event.id) // Filter out undefined/null events
+              .map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onPress={handleEventPress}
+                />
+              ))}
           </ScrollView>
         </View>
 
         {/* Community Resources Section */}
         <View style={styles.communityResourcesSection}>
-          <SectionTitle title="My community resources" />
+          <SectionTitle title={homeStrings.communityResources.title} />
           
           <WiFiCard onPress={handleWiFiPress} />
 
