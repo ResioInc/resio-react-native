@@ -1,18 +1,64 @@
-// User related types
+// User related types (updated to match actual API response)
 export interface User {
   id: number;
+  externalId?: string;
   email: string;
   firstName?: string;
   lastName?: string;
   fullName?: string;
   type: UserType;
   phone?: string;
+  phoneNumber?: string; // API uses phoneNumber
   propertyId?: number;
   property?: Property;
   currentLeaseId?: number;
   profilePictureUrl?: string;
+  photoUrl?: string; // API uses photoUrl for profile photo
   createdAt: string;
   updatedAt: string;
+  
+  // Additional fields from API response
+  unitNumber?: string;
+  unitNumberSpace?: string;
+  spaceConfiguration?: string;
+  statusType?: string;
+  startDate?: string;
+  endDate?: string;
+  floorPlanId?: number;
+  unitId?: number;
+  paymentsBlocked?: boolean;
+  hidden?: boolean;
+  buildingName?: string | null;
+  LeaseCustomer?: any; // Complex nested object
+  customerType?: string;
+  leaseId?: number;
+  accountId?: number;
+  address?: string | null;
+  postalCode?: string | null;
+  leaseCustomerStatus?: string;
+  moveInDate?: string;
+  moveOutDate?: string | null;
+  lease?: any; // Complex lease object
+  entrataIsActive?: boolean;
+  hasFutureLease?: boolean;
+  leaseIds?: number[];
+  appVersion?: string;
+  isAndroidDevice?: boolean;
+  emailIsVerified?: boolean;
+  enablePushNotificationMessages?: boolean;
+  enablePushNotificationMaintenance?: boolean;
+  enablePushNotificationPayments?: boolean;
+  installedAppTimestamp?: string;
+  lastInteractionDate?: string;
+  timezone?: string | null;
+  emailOptIn?: boolean;
+  termsApprovedDate?: string;
+  cardConnectProfileId?: string;
+  preferredPaymentSource?: string;
+  deletedAt?: string | null;
+  roommateBio?: string;
+  lastPaymentDate?: string;
+  messagingOptOut?: string | null;
 }
 
 export enum UserType {
@@ -21,26 +67,128 @@ export enum UserType {
   GUARANTOR = 3,
 }
 
-// Property related types
+// Property related types (updated to match actual API response)
 export interface Property {
   id: number;
-  marketingName: string;
-  legalName: string;
-  address: Address;
-  photoUrl?: string;
+  marketingName?: string;
+  legalName?: string;
+  address?: string; // API returns address as a string, not an object!
+  photoUrl?: string; // API uses photoUrl (not photoURL)
+  logoUrl?: string;
+  fastPassPhotoUrl?: string;
   phone?: string;
   email?: string;
-  websiteUrl?: string;
-  supportsPartialPayments: boolean;
+  websiteUrl?: string; // Legacy field for backward compatibility
+  websites?: {
+    home?: string;
+    handbook?: string;
+  };
+  supportsPartialPayments?: boolean;
   officeHours?: OfficeHours[];
+  
+  // Additional fields from API response
+  hasAutopayRun?: boolean;
+  pmsType?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  externalId?: string;
+  timezone?: string;
+  accountingPeriodEndDate?: number;
+  rewardsUrl?: string;
+  moveInTime?: string;
+  naturalKey?: string;
+  deletedAt?: string | null;
+  glFundingDebitAccountNumber?: string;
+  organizationId?: number;
+  paymentAccounts?: PaymentAccount[];
+  uuid?: string | null;
+  maintenanceHours?: MaintenanceHours;
+  postMonth?: string;
+  externalArCodes?: ExternalArCodes;
+  faqUrl?: string;
+  cbxWifiInformationFilePath?: string;
+  twilioNumber?: string;
+  featureFlags?: FeatureFlags;
+  organization?: Organization;
+  photos?: PropertyPhoto[];
+  configurations?: PropertyConfiguration[];
 }
 
+// Legacy Address interface - API now returns address as string
 export interface Address {
   street: string;
   city: string;
   state: string;
   zipCode: string;
   country: string;
+}
+
+// New interfaces to match API response
+export interface PaymentAccount {
+  name: string;
+  debit: boolean;
+  description: string;
+  accountNumber: string | number;
+}
+
+export interface MaintenanceHours {
+  [key: string]: {
+    start: string;
+    end: string;
+  };
+}
+
+export interface ExternalArCodes {
+  rent?: string;
+  lateFee?: string;
+  payment?: string;
+  resioPayment?: string;
+  nonSufficientFundsFee?: string;
+}
+
+export interface FeatureFlags {
+  id: number;
+  property_id: number;
+  organization_id: number;
+  flags: {
+    [key: string]: boolean;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Organization {
+  id: number;
+  name: string;
+  domain: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+  paymentAccounts?: PaymentAccount[];
+}
+
+export interface PropertyPhoto {
+  id: number;
+  photoUrl: string;
+  isRemoved: boolean;
+  type: {
+    name: string;
+    enable: boolean;
+  };
+}
+
+export interface PropertyConfiguration {
+  id: number;
+  organizationId: number;
+  propertyId: number;
+  key: string;
+  value: any;
+  description: string;
+  type: string;
+  sensitive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
 }
 
 export interface OfficeHours {
@@ -233,13 +381,20 @@ export interface Photo {
   label?: string;
 }
 
-// Community resource types
+// Community resource types (matching iOS CommunityResource model)
 export interface CommunityResource {
   id: number;
-  title: string;
-  description: string;
-  iconName: string;
+  propertyId: number; // propertyID in iOS (mapped from propertyId)
+  position: number; // Position for grid layout (0-3)
+  name?: string; // title in iOS
+  description?: string;
+  content?: string; // Additional content field from iOS
+  icon?: string; // Icon identifier string
   url?: string;
+  files?: File[]; // Associated files from iOS
+  // Legacy fields for backward compatibility
+  title?: string; // Maps to name
+  iconName?: string; // Maps to icon
   phoneNumber?: string;
   email?: string;
 }

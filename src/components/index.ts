@@ -9,6 +9,7 @@ export { WiFiCard } from './home/WiFiCard';
 export { ResourceCard } from './home/ResourceCard';
 export { LinkedAccountsCard } from './home/LinkedAccountsCard';
 export { SectionTitle } from './home/SectionTitle';
+export { PropertyInfoCard } from './home/PropertyInfoCard';
 
 // Bulletin Components
 export { BulletinListItem } from './bulletins/BulletinListItem';

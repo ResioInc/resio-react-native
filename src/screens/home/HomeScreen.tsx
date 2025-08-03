@@ -23,7 +23,6 @@ import {
   SectionTitle,
 } from '@/components';
 import { 
-  mockResources, 
   mockConnections 
 } from '@/data/mockHomeData';
 import { Event, CommunityResource } from '@/types/home';
@@ -38,6 +37,11 @@ import {
 import { homeStrings } from '@/constants';
 
 type RootNavigationProp = StackNavigationProp<RootStackParamList>;
+
+// TODO: import errors
+// TODO: drag to drop modals
+// TODO: qr code generator
+// TODO: scrolling speed
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<RootNavigationProp>();
@@ -75,18 +79,64 @@ export const HomeScreen: React.FC = () => {
 
   const handleResourcePress = useCallback((resource?: CommunityResource) => {
     if (resource) {
-      // TODO: Navigate to Resource detail screen
-      console.log('Navigate to Resource:', resource.title);
+      // Navigate to Resource detail screen (matching iOS showResource)
+      navigation.navigate('ResourceDetail', { resource });
     } else {
-      // TODO: Navigate to More Resources screen
-      console.log('Navigate to More Resources');
+      // Navigate to More Resources screen (matching iOS showMoreResources)
+      navigation.navigate('MoreResources');
     }
-  }, []);
+  }, [navigation]);
 
   const handleLinkedAccountsPress = useCallback(() => {
     // TODO: Navigate to Linked Accounts screen
     console.log('Navigate to Linked Accounts');
   }, []);
+
+  // Render resource grid based on position like iOS
+  const renderResourceGrid = useCallback(() => {
+    // Sort resources by position and filter to only show positions 0-3
+    const sortedResources = resources
+      .filter(resource => resource.position !== undefined && resource.position >= 0 && resource.position <= 3)
+      .sort((a, b) => a.position - b.position);
+
+    // Group resources into rows like iOS
+    const firstRowResources = sortedResources.filter(r => r.position === 0 || r.position === 1);
+    const secondRowResources = sortedResources.filter(r => r.position === 2 || r.position === 3);
+    
+    return (
+      <View style={styles.resourcesGrid}>
+        {/* First Row - Positions 0 and 1 */}
+        {firstRowResources.length > 0 && (
+          <View style={styles.resourceRow}>
+            {firstRowResources.map((resource) => (
+              <ResourceCard
+                key={resource.id}
+                resource={resource}
+                onPress={handleResourcePress}
+              />
+            ))}
+            {/* Add spacer if only one item in row */}
+            {firstRowResources.length === 1 && <View style={styles.resourceSpacer} />}
+          </View>
+        )}
+        
+        {/* Second Row - Positions 2 and 3 */}
+        {secondRowResources.length > 0 && (
+          <View style={styles.resourceRow}>
+            {secondRowResources.map((resource) => (
+              <ResourceCard
+                key={resource.id}
+                resource={resource}
+                onPress={handleResourcePress}
+              />
+            ))}
+            {/* Add spacer if only one item in row */}
+            {secondRowResources.length === 1 && <View style={styles.resourceSpacer} />}
+          </View>
+        )}
+      </View>
+    );
+  }, [resources, handleResourcePress]);
 
   return (
     <View style={styles.container}>
@@ -175,16 +225,8 @@ export const HomeScreen: React.FC = () => {
           
           <WiFiCard onPress={handleWiFiPress} />
 
-          {/* Resource Grid */}
-          <View style={styles.resourcesGrid}>
-            {mockResources.map((resource) => (
-              <ResourceCard
-                key={resource.id}
-                resource={resource}
-                onPress={handleResourcePress}
-              />
-            ))}
-          </View>
+          {/* Resource Grid - Position-based like iOS */}
+          {renderResourceGrid()}
 
           {/* More Resources Card */}
           <ResourceCard
@@ -291,10 +333,16 @@ const styles = StyleSheet.create({
     paddingBottom: PADDING.padding4,
   },
   resourcesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: PADDING.padding4, // iOS .Padding.padding4 spacing between items
     marginBottom: PADDING.padding4, // iOS stackView spacing to next section
+  },
+  resourceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: PADDING.padding4, // Spacing between rows
+  },
+  resourceSpacer: {
+    // Same width as ResourceCard to maintain spacing when only one item in row
+    width: (SCREEN_WIDTH - PADDING.padding4 * 2 - PADDING.padding4) / 2,
   },
   linkedAccountsSection: {
     marginTop: PADDING.padding2,

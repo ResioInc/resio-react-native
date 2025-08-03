@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Text,
   StatusBar,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -36,17 +37,45 @@ export const BulletinsListScreen: React.FC = () => {
 
   // Navigation options are set in HomeStackNavigator to match iOS (no title, just back arrow)
 
+  // iOS-style error handling function (matching UIViewController+Extensions showError)
+  const showError = useCallback((error: Error | string, onRetry?: () => void) => {
+    const errorMessage = typeof error === 'string' ? error : error.message;
+    
+    const buttons: Array<{text: string; style?: 'default' | 'cancel' | 'destructive'; onPress?: () => void}> = [
+      {
+        text: 'OK', // iOS: "alert.accept".localized
+        style: 'default',
+      }
+    ];
+    
+    // Add retry option for network-related errors
+    if (onRetry && (errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('timeout'))) {
+      buttons.unshift({
+        text: 'Retry',
+        style: 'default',
+        onPress: onRetry,
+      });
+    }
+    
+    Alert.alert(
+      'Error', // iOS: "alert.error".localized
+      errorMessage,
+      buttons,
+      { cancelable: true }
+    );
+  }, []);
+
   const loadBulletins = useCallback(async (isFirstPage: boolean = false) => {
-    if (!user?.propertyId) return;
+    if (!user?.propertyId) {
+      console.log('CSCurrentUser has no associated property.'); // iOS log message
+      return;
+    }
 
     try {
       const pageNum = isFirstPage ? 0 : currentPage + 1;
-      console.log('📡 Calling HomeAPI.getBulletins with:', { propertyId: user.propertyId, pageNum });
       
       const newBulletins = await HomeAPI.getBulletins(user.propertyId, pageNum);
-      
-      console.log('✅ Bulletins loaded successfully:', { count: newBulletins.length, bulletins: newBulletins });
-      
+            
       if (isFirstPage) {
         setAllBulletins(newBulletins);
         setCurrentPage(0);
@@ -60,13 +89,20 @@ export const BulletinsListScreen: React.FC = () => {
       
     } catch (error) {
       console.error('❌ Failed to load bulletins:', error);
-      // Fallback to mock data if API fails
-      console.log('🔄 API failed, using mock data as fallback');
-      const { mockBulletins } = await import('@/data/mockHomeData');
-      setAllBulletins(mockBulletins);
-      setHasMorePages(false);
+      
+      // iOS-style error handling: show user-facing error alert
+      showError(error as Error, () => {
+        // Retry function - reload the same page
+        loadBulletins(isFirstPage);
+      });
+      
+      // iOS behavior: Don't reset hasMorePages on first page errors
+      // Only set hasMorePages to false for pagination errors
+      if (!isFirstPage) {
+        setHasMorePages(false);
+      }
     }
-  }, [user?.propertyId, currentPage]);
+  }, [user?.propertyId, currentPage, showError]);
 
   // Load initial bulletins
   useEffect(() => {
@@ -79,7 +115,7 @@ export const BulletinsListScreen: React.FC = () => {
     setIsRefreshing(true);
     await loadBulletins(true);
     setIsRefreshing(false);
-  }, [user?.propertyId]);
+  }, [loadBulletins]);
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !hasMorePages) return;
@@ -87,7 +123,7 @@ export const BulletinsListScreen: React.FC = () => {
     setIsLoadingMore(true);
     await loadBulletins(false);
     setIsLoadingMore(false);
-  }, [isLoadingMore, hasMorePages, currentPage, user?.propertyId]);
+  }, [isLoadingMore, hasMorePages, loadBulletins]);
 
   const handleBulletinPress = useCallback((bulletin: Bulletin) => {
     navigation.navigate('BulletinDetail', { bulletin });

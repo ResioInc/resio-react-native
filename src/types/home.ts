@@ -35,8 +35,17 @@ export type { Event, Photo } from './index';
 
 export interface CommunityResource {
   id: number;
-  title: string;
-  description: string;
+  propertyId: number; // propertyID in iOS (mapped from propertyId)
+  position: number; // Position for grid layout (0-3)
+  name?: string; // title in iOS
+  description?: string;
+  content?: string; // Additional content field from iOS
+  icon?: string; // Icon identifier string
+  url?: string;
+  files?: File[]; // Associated files from iOS
+  // Legacy fields for backward compatibility
+  title?: string; // Maps to name
+  iconName?: string; // Maps to icon
 }
 
 export interface Connection {

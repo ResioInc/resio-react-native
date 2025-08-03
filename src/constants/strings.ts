@@ -53,6 +53,17 @@ export const strings = {
         title: "More resources",
         description: "See what else is out there",
       },
+      detail: {
+        info: {
+          title: "INFORMATION",
+        },
+        website: {
+          title: "WEBSITE",
+        },
+        files: {
+          title: "FILES",
+        },
+      },
     },
 
     // Home - WiFi
@@ -102,13 +113,15 @@ export const strings = {
 
     // Home - Property Info
     propertyInfo: {
-      title: "Property info",
       contactOffice: "Contact the office",
       residentHandbook: "Resident handbook",
+      title: "Property info",
     },
+    
+
 
     // Home - Contact Office
-    contactOffice: {
+    contactOfficeDetails: {
       hours: "Office Hours",
       website: "Website",
       handbook: "Resident Handbook",

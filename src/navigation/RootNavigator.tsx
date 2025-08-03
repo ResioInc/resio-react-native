@@ -8,8 +8,12 @@ import { BulletinsListScreen } from '@/screens/bulletins/BulletinsListScreen';
 import { BulletinDetailScreen } from '@/screens/bulletins/BulletinDetailScreen';
 import { EventDetailScreen } from '@/screens/events/EventDetailScreen';
 import { WifiConnectionScreen } from '@/screens/wifi/WifiConnectionScreen';
+import { ResourceDetailScreen } from '@/screens/resources/ResourceDetailScreen';
+import { MoreResourcesScreen } from '@/screens/resources/MoreResourcesScreen';
+import { ContactOfficeScreen } from '@/screens/contact/ContactOfficeScreen';
+import { WebViewScreen } from '@/screens/web/WebViewScreen';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
-import { Bulletin, Event } from '@/types';
+import { Bulletin, Event, CommunityResource } from '@/types';
 import { notificationStrings } from '@/constants/strings';
 
 export type RootStackParamList = {
@@ -26,6 +30,17 @@ export type RootStackParamList = {
   };
   // WiFi screen
   WifiConnection: undefined;
+  // Community Resources screens
+  ResourceDetail: {
+    resource: CommunityResource;
+  };
+  MoreResources: undefined;
+  // Contact Office & FAQ screens
+  ContactOffice: undefined;
+  WebView: {
+    url: string;
+    title: string;
+  };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -108,6 +123,99 @@ export const RootNavigator: React.FC = () => {
             options={{
               headerShown: false,
               presentation: 'card', // Standard push navigation like iOS
+            }}
+          />
+          <Stack.Screen 
+            name="ResourceDetail" 
+            component={ResourceDetailScreen}
+            options={{
+              headerShown: true,
+              presentation: 'card', // Standard push navigation like iOS
+              headerStyle: {
+                backgroundColor: '#F2F2F7', // iOS background color
+                shadowColor: 'transparent',
+                elevation: 0,
+                borderBottomWidth: 0,
+              },
+              headerTintColor: '#000000',
+              headerBackTitleVisible: false,
+              headerTitleAlign: 'center',
+              headerShadowVisible: false,
+              headerTitleStyle: {
+                fontSize: 15,
+                fontWeight: '700',
+                fontFamily: 'System',
+              },
+            }}
+          />
+          <Stack.Screen 
+            name="MoreResources" 
+            component={MoreResourcesScreen}
+            options={{
+              headerShown: true,
+              presentation: 'card', // Standard push navigation like iOS
+              title: 'More resources', // iOS title from localization
+              headerStyle: {
+                backgroundColor: '#F2F2F7', // iOS background color
+                shadowColor: 'transparent',
+                elevation: 0,
+                borderBottomWidth: 0,
+              },
+              headerTintColor: '#000000',
+              headerBackTitleVisible: false,
+              headerTitleAlign: 'center',
+              headerShadowVisible: false,
+              headerTitleStyle: {
+                fontSize: 15,
+                fontWeight: '700',
+                fontFamily: 'System',
+              },
+            }}
+          />
+          <Stack.Screen 
+            name="ContactOffice" 
+            component={ContactOfficeScreen}
+            options={{
+              headerShown: true,
+              presentation: 'card', // Standard push navigation like iOS
+              headerStyle: {
+                backgroundColor: '#F2F2F7', // iOS background color
+                shadowColor: 'transparent',
+                elevation: 0,
+                borderBottomWidth: 0,
+              },
+              headerTintColor: '#000000',
+              headerBackTitleVisible: false,
+              headerTitleAlign: 'center',
+              headerShadowVisible: false,
+              headerTitleStyle: {
+                fontSize: 15,
+                fontWeight: '700',
+                fontFamily: 'System',
+              },
+            }}
+          />
+          <Stack.Screen 
+            name="WebView" 
+            component={WebViewScreen}
+            options={{
+              headerShown: true,
+              presentation: 'card', // Standard push navigation like iOS
+              headerStyle: {
+                backgroundColor: '#F2F2F7', // iOS background color
+                shadowColor: 'transparent',
+                elevation: 0,
+                borderBottomWidth: 0,
+              },
+              headerTintColor: '#000000',
+              headerBackTitleVisible: false,
+              headerTitleAlign: 'center',
+              headerShadowVisible: false,
+              headerTitleStyle: {
+                fontSize: 15,
+                fontWeight: '700',
+                fontFamily: 'System',
+              },
             }}
           />
         </>

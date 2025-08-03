@@ -1,7 +1,8 @@
 /**
- * Date utility functions
+ * Utility functions
  * 
- * This module contains date formatting functions that match iOS behavior exactly.
+ * This module contains various utility functions that match iOS behavior exactly,
+ * including date formatting, text processing, and phone number formatting.
  */
 
 /**
@@ -136,4 +137,53 @@ export const sanitizeFileURL = (url?: string): string | null => {
   }
   
   return url.trim();
+};
+
+/**
+ * Phone number formatting utilities
+ * Matches iOS String+Extension.swift formatAsPhoneNumber() exactly
+ */
+
+/**
+ * Format phone number exactly like iOS formatAsPhoneNumber()
+ * Pattern: (###) ###-####
+ * Example: "2052104373" → "(205) 210-4373"
+ */
+export const formatAsPhoneNumber = (phoneNumber: string): string => {
+  if (!phoneNumber) return '';
+  
+  const pattern = "(###) ###-####";
+  const replacementCharacter = "#";
+  
+  // Strip all non-numeric characters (matching iOS regex)
+  let pureNumber = phoneNumber.replace(/[^0-9]/g, "");
+  
+  // Insert formatting characters at appropriate positions
+  for (let index = 0; index < pattern.length; index++) {
+    if (index >= pureNumber.length) return pureNumber;
+    
+    const patternCharacter = pattern[index];
+    if (patternCharacter !== replacementCharacter) {
+      pureNumber = pureNumber.slice(0, index) + patternCharacter + pureNumber.slice(index);
+    }
+  }
+  
+  return pureNumber;
+};
+
+/**
+ * Clean phone number to remove all formatting
+ * Example: "(205) 210-4373" → "2052104373"
+ */
+export const cleanPhoneNumber = (phoneNumber: string): string => {
+  if (!phoneNumber) return '';
+  return phoneNumber.replace(/[^0-9]/g, "");
+};
+
+/**
+ * Validate if phone number has correct length (10 digits for US)
+ */
+export const isValidPhoneNumber = (phoneNumber: string): boolean => {
+  const cleaned = cleanPhoneNumber(phoneNumber);
+  return cleaned.length === 10;
 };

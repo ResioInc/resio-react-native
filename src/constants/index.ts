@@ -42,4 +42,7 @@ export const COLORS = {
   TEXT_TERTIARY: '#999999',
   BACKGROUND_PRIMARY: '#FFFFFF',
   BACKGROUND_SECONDARY: '#F5F5F5',
-} as const; 
+} as const;
+
+// Re-export utilities for convenience
+export { formatAsPhoneNumber, cleanPhoneNumber, isValidPhoneNumber } from '../utils/utils'; 
