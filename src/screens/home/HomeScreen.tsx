@@ -46,19 +46,11 @@ export const HomeScreen: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   const { bulletins, events, resources, unreadBulletinsCount, isLoading } = useAppSelector((state) => state.home);
   const { scrollY, animations } = useHeaderAnimation();
-
-  // Log events data to see what we're getting
-  console.log('🏡 HomeScreen - Events from Redux:', events);
-  console.log('🏡 HomeScreen - Events count:', events.length);
   
   // Check for undefined events
   const undefinedEvents = events.filter(event => !event);
   if (undefinedEvents.length > 0) {
     console.error('🏡 HomeScreen - Found undefined events:', undefinedEvents.length);
-  }
-  
-  if (events.length > 0) {
-    console.log('🏡 HomeScreen - First event:', events[0]);
   }
 
   // Fetch home data when component mounts or when user changes
@@ -78,9 +70,8 @@ export const HomeScreen: React.FC = () => {
   }, [navigation]);
 
   const handleWiFiPress = useCallback(() => {
-    // TODO: Navigate to WiFi Setup screen
-    console.log('Navigate to WiFi Setup');
-  }, []);
+    navigation.navigate('WifiConnection');
+  }, [navigation]);
 
   const handleResourcePress = useCallback((resource?: CommunityResource) => {
     if (resource) {

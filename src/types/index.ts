@@ -254,6 +254,46 @@ export interface WifiInfo {
   supportWebsite: string;
 }
 
+export interface UnitInfo {
+  wifi?: WifiInfo;
+}
+
+export interface UnitInfoResponse {
+  unitInfo?: UnitInfo;
+  'unit-info'?: UnitInfo; // Backend uses hyphenated key
+}
+
+// WiFi connection states
+export enum WifiConnectionStatus {
+  DISCONNECTED = 'disconnected',
+  CONNECTED = 'connected',
+  CONNECTING = 'connecting',
+  UNKNOWN = 'unknown',
+}
+
+// WiFi support types for contact options
+export enum WifiSupportType {
+  TEXT = 'text',
+  EMAIL = 'email',
+  WEBSITE = 'website',
+}
+
+export interface WifiSupportOption {
+  type: WifiSupportType;
+  title: string;
+  value: string;
+  icon: string;
+  urlPrefix: string;
+}
+
+// WiFi Redux state
+export interface WifiState {
+  wifiInfo: WifiInfo | null;
+  connectionStatus: WifiConnectionStatus;
+  isLoading: boolean;
+  error: string | null;
+}
+
 // Bulletin types - Matching actual API response
 export interface Bulletin {
   id: number;

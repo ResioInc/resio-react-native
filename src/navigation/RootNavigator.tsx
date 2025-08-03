@@ -7,6 +7,7 @@ import { MainTabNavigator } from './MainTabNavigator';
 import { BulletinsListScreen } from '@/screens/bulletins/BulletinsListScreen';
 import { BulletinDetailScreen } from '@/screens/bulletins/BulletinDetailScreen';
 import { EventDetailScreen } from '@/screens/events/EventDetailScreen';
+import { WifiConnectionScreen } from '@/screens/wifi/WifiConnectionScreen';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { Bulletin, Event } from '@/types';
 import { notificationStrings } from '@/constants/strings';
@@ -23,6 +24,8 @@ export type RootStackParamList = {
   EventDetail: {
     event: Event;
   };
+  // WiFi screen
+  WifiConnection: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -97,6 +100,14 @@ export const RootNavigator: React.FC = () => {
             options={{
               headerShown: false,
               presentation: 'modal', // iOS-style modal presentation
+            }}
+          />
+          <Stack.Screen 
+            name="WifiConnection" 
+            component={WifiConnectionScreen}
+            options={{
+              headerShown: false,
+              presentation: 'card', // Standard push navigation like iOS
             }}
           />
         </>

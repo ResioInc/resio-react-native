@@ -55,10 +55,34 @@ export const strings = {
       },
     },
 
-    // Home - Wifi
+    // Home - WiFi
     wifi: {
       title: "Wi-Fi network",
       description: "View your network and password",
+      button: {
+        connected: "Connected",
+        disconnected: "Connect",
+        connecting: "Connecting...",
+      },
+      info: {
+        networkName: "Network Name",
+        password: "Password",
+        unit: "Unit",
+      },
+      support: {
+        title: "Support",
+        subtitle: "Need help with your WiFi connection?",
+        text: "Text Support",
+        email: "Email Support",
+        website: "Support Website",
+      },
+      noInfo: {
+        title: "Support",
+        subtitle: "There appears to be no wifi information available for your unit.\n\nIf this seems incorrect, please contact the CBX support team.",
+      },
+      qrCode: {
+        title: "WiFi QR Code",
+      },
     },
 
     // Home - Actions
@@ -252,9 +276,9 @@ export const strings = {
       text: "Text CBX",
       email: "Email CBX",
     },
-    noInfo: {
-      subtitle: "There appears to be no wifi infomation available for your unit.\n\nIf this seems incorrect, please contact the CBX support team.",
-    },
+      noInfo: {
+    subtitle: "There appears to be no wifi information available for your unit.\n\nIf this seems incorrect, please contact the CBX support team.",
+  },
   },
 
   // ROOMMATES
@@ -339,3 +363,4 @@ export const loginStrings = strings.login;
 export const errorStrings = strings.error;
 export const profileStrings = strings.profile;
 export const commonStrings = strings.common;
+export const eventStrings = strings.events;

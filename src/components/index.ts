@@ -12,4 +12,9 @@ export { SectionTitle } from './home/SectionTitle';
 
 // Bulletin Components
 export { BulletinListItem } from './bulletins/BulletinListItem';
-export { ImageCarousel } from './bulletins/ImageCarousel'; 
+export { ImageCarousel } from './bulletins/ImageCarousel';
+
+// WiFi Components
+export { WifiConnectionButton } from './wifi/WifiConnectionButton';
+export { InfoRow } from './wifi/InfoRow';
+export { WifiSupportRow } from './wifi/WifiSupportRow'; 

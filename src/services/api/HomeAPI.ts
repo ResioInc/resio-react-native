@@ -1,5 +1,5 @@
 import { BaseAPI } from './BaseAPI';
-import { Event, Bulletin, CommunityResource, Lease } from '@/types';
+import { Event, Bulletin, CommunityResource, Lease, WifiInfo, UnitInfoResponse } from '@/types';
 
 class HomeAPIService extends BaseAPI {
   private static homeInstance: HomeAPIService;
@@ -14,8 +14,6 @@ class HomeAPIService extends BaseAPI {
   async getEvents(): Promise<Event[]> {
     // Match iOS: Endpoint(domain: .resio(.v1), path: "users/events")
     const response = await this.get<{ response: Event[] }>('/api/v1/users/events');
-    console.log('🎉 HomeAPI.getEvents() - Raw API Response:', response);
-    console.log('🎉 HomeAPI.getEvents() - Events Array:', response.response);
     return response.response || [];
   }
 
@@ -105,6 +103,50 @@ class HomeAPIService extends BaseAPI {
   async getPropertyInfo(propertyId: number): Promise<any> {
     const response = await this.get<{ response: any }>(`/api/v2/properties/${propertyId}`);
     return response.response;
+  }
+
+  /**
+   * Get unit WiFi information for a lease
+   * Matches iOS: Endpoint(domain: .resio(.v2), path: "users/unit-information/\(leaseID)")
+   */
+  async getUnitInfo(leaseId: number): Promise<UnitInfoResponse> {
+    // Validate inputs to prevent injection
+    if (!Number.isInteger(leaseId) || leaseId <= 0) {
+      throw new Error('Invalid leaseId parameter');
+    }
+
+    try {
+      console.log('📶 HomeAPI.getUnitInfo - Fetching WiFi info for lease ID:', leaseId);
+      // Match iOS endpoint exactly: /api/v2/users/unit-information/{leaseId}
+      const response = await this.get<{ success: boolean; response: UnitInfoResponse }>(
+        `/api/v2/users/unit-information/${leaseId}`
+      );
+      console.log('📶 HomeAPI.getUnitInfo - API Response:', response);
+      console.log('📶 HomeAPI.getUnitInfo - Response structure:', JSON.stringify(response.response, null, 2));
+      return response.response || {};
+    } catch (error) {
+      console.error('📶 HomeAPI.getUnitInfo - API Error:', error);
+      // Re-throw with sanitized error message for security
+      throw new Error('Failed to fetch unit WiFi information');
+    }
+  }
+
+  /**
+   * Get WiFi information directly for current user's active lease
+   * Note: This method requires a valid lease ID to be passed from the calling code
+   */
+  async getCurrentWifiInfo(leaseId?: number): Promise<WifiInfo | null> {
+    if (!leaseId) {
+      throw new Error('No active lease ID available for WiFi information');
+    }
+    
+    try {
+      const unitInfo = await this.getUnitInfo(leaseId);
+      // Handle backend's hyphenated key structure
+      return unitInfo['unit-info']?.wifi || unitInfo.unitInfo?.wifi || null;
+    } catch (error) {
+      throw new Error('Failed to fetch current WiFi information');
+    }
   }
 }
 

@@ -21,12 +21,6 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
 
   const dispatch = useAppDispatch();
 
-  // Debug logs (remove these in production)
-  if (__DEV__) {
-    console.log('🎫 EventCard - Rendering event:', event);
-    console.log('🎫 EventCard - Event photos:', event?.photos);
-  }
-
   // iOS rsvpTitle() equivalent
   const getRSVPTitle = (): string | null => {
     const total = event?.rsvpLimit ?? 0;
@@ -188,11 +182,6 @@ const styles = StyleSheet.create({
     borderRadius: 14, // iOS: CardView.cornerRadius
     overflow: 'hidden', // iOS: layer.masksToBounds = true
     // iOS calculation: (frame.size.width - .Padding.padding4) / 2
-    // Match iOS exactly: 16pt accounts for the gap between cards
-    width: (SCREEN_WIDTH - PADDING.padding4) / 2,
-    aspectRatio: 1, // iOS: square (width: edge, height: edge)
-    // No horizontal margin - let the scroll content padding handle the edge spacing
-    marginHorizontal: 0,
         // React Native: Account for scroll content padding (8pt left/right) + card margins (8pt each side)
     // Available width = SCREEN_WIDTH - scroll padding (16pt) - total card margins (32pt for 2 cards)
     width: (SCREEN_WIDTH - PADDING.padding2 * 2 - PADDING.padding2 * 4) / 2,

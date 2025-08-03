@@ -2,11 +2,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import authReducer from './slices/authSlice';
 import homeReducer from './slices/homeSlice';
+import wifiReducer from './slices/wifiSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     home: homeReducer,
+    wifi: wifiReducer,
   },
 });
 

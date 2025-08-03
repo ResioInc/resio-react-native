@@ -26,10 +26,6 @@ export const fetchHomeData = createAsyncThunk(
     // Filter out any undefined/null events
     const validEvents = events.filter((event) => event && event.id);
     
-    console.log('🏠 fetchHomeData - Events received:', events);
-    console.log('🏠 fetchHomeData - Valid events:', validEvents);
-    console.log('🏠 fetchHomeData - Events count:', validEvents.length);
-    
     if (events.length !== validEvents.length) {
       console.warn('🏠 fetchHomeData - Filtered out', events.length - validEvents.length, 'invalid events');
     }
@@ -51,10 +47,6 @@ export const fetchEvents = createAsyncThunk(
         const date2 = event2.startTime ? new Date(event2.startTime) : new Date(0);
         return date1.getTime() - date2.getTime();
       });
-      
-      console.log('🏠 Redux fetchEvents - Original events:', events);
-      console.log('🏠 Redux fetchEvents - Valid events after filter:', validEvents);
-      console.log('🏠 Redux fetchEvents - Sorted events:', sortedEvents);
       
       if (events.length !== validEvents.length) {
         console.warn('🏠 Redux fetchEvents - Filtered out', events.length - validEvents.length, 'invalid events');

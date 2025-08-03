@@ -44,11 +44,6 @@ export const EventDetailScreen: React.FC<EventDetailScreenProps> = ({
     );
   }
 
-  // Log the complete event object
-  console.log('🎪 EventDetailScreen - Full event object:', event);
-  console.log('🎪 EventDetailScreen - Event keys:', Object.keys(event));
-  console.log('🎪 EventDetailScreen - Event values:', Object.values(event));
-
   const formatDateTime = (dateString?: string): string => {
     if (!dateString) return 'TBD';
     const date = new Date(dateString);
