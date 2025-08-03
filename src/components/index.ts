@@ -8,4 +8,8 @@ export { EventCard } from './home/EventCard';
 export { WiFiCard } from './home/WiFiCard';
 export { ResourceCard } from './home/ResourceCard';
 export { LinkedAccountsCard } from './home/LinkedAccountsCard';
-export { SectionTitle } from './home/SectionTitle'; 
+export { SectionTitle } from './home/SectionTitle';
+
+// Bulletin Components
+export { BulletinListItem } from './bulletins/BulletinListItem';
+export { ImageCarousel } from './bulletins/ImageCarousel'; 

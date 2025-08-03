@@ -7,6 +7,7 @@ const initialState: HomeState = {
   bulletins: [],
   resources: [],
   linkedAccounts: [],
+  unreadBulletinsCount: 0,
   isLoading: false,
   error: null,
 };
@@ -14,14 +15,15 @@ const initialState: HomeState = {
 // Async thunks
 export const fetchHomeData = createAsyncThunk(
   'home/fetchData',
-  async () => {
-    const [events, bulletins, resources] = await Promise.all([
+  async (propertyId?: number) => {
+    const [events, bulletins, resources, unreadBulletinsCount] = await Promise.all([
       HomeAPI.getEvents(),
-      HomeAPI.getBulletins(),
-      HomeAPI.getCommunityResources(),
+      HomeAPI.getBulletins(propertyId),
+      HomeAPI.getCommunityResources(propertyId),
+      propertyId ? HomeAPI.getUnreadBulletinsCount(propertyId) : Promise.resolve(0),
     ]);
     
-    return { events, bulletins, resources };
+    return { events, bulletins, resources, unreadBulletinsCount };
   }
 );
 
@@ -35,9 +37,23 @@ export const fetchEvents = createAsyncThunk(
 
 export const fetchBulletins = createAsyncThunk(
   'home/fetchBulletins',
-  async () => {
-    const bulletins = await HomeAPI.getBulletins();
-    return bulletins;
+  async (propertyId: number | undefined, { rejectWithValue }) => {
+    try {
+      const bulletins = await HomeAPI.getBulletins(propertyId);
+      return bulletins;
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to fetch bulletins'
+      );
+    }
+  }
+);
+
+export const fetchUnreadBulletinsCount = createAsyncThunk(
+  'home/fetchUnreadBulletinsCount',
+  async (propertyId: number) => {
+    const count = await HomeAPI.getUnreadBulletinsCount(propertyId);
+    return count;
   }
 );
 
@@ -55,7 +71,8 @@ const homeSlice = createSlice({
     markBulletinAsRead: (state, action) => {
       const bulletin = state.bulletins.find(b => b.id === action.payload);
       if (bulletin) {
-        bulletin.isRead = true;
+        // In iOS, bulletins are marked as read by setting messageReadCount to a non-zero value
+        bulletin.messageReadCount = "1";
       }
     },
   },
@@ -71,6 +88,7 @@ const homeSlice = createSlice({
         state.events = action.payload.events;
         state.bulletins = action.payload.bulletins;
         state.resources = action.payload.resources;
+        state.unreadBulletinsCount = action.payload.unreadBulletinsCount;
       })
       .addCase(fetchHomeData.rejected, (state, action) => {
         state.isLoading = false;
@@ -85,8 +103,24 @@ const homeSlice = createSlice({
     
     // Fetch Bulletins
     builder
+      .addCase(fetchBulletins.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(fetchBulletins.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.bulletins = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchBulletins.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string || 'Failed to fetch bulletins';
+      });
+    
+    // Fetch Unread Bulletins Count
+    builder
+      .addCase(fetchUnreadBulletinsCount.fulfilled, (state, action) => {
+        state.unreadBulletinsCount = action.payload;
       });
   },
 });

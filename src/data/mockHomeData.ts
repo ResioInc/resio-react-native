@@ -1,8 +1,53 @@
 import { Bulletin, Event, CommunityResource, Connection } from '@/types/home';
 
 export const mockBulletins: Bulletin[] = [
-  { id: 1, isRead: false, title: 'Welcome to the building!' },
-  { id: 2, isRead: false, title: 'New amenity hours' },
+  { 
+    id: 1, 
+    title: 'Welcome to the building!',
+    description: 'We are excited to welcome you to your new home! Please take a moment to review the attached community handbook and amenity information.',
+    descriptionHTML: '<p>Welcome to your new home!</p>',
+    createdAt: '2024-12-18T10:00:00Z',
+    updatedAt: '2024-12-18T10:00:00Z',
+    messageReadCount: '0',
+    files: [
+      {
+        id: 1,
+        fileUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=400&fit=crop',
+        label: 'community-welcome.jpg'
+      }
+    ],
+    highlight: true,
+  },
+  { 
+    id: 2, 
+    title: 'New amenity hours',
+    description: 'Please note the updated hours for our amenities. The gym will now be open 24/7, and the pool area will have extended summer hours.',
+    descriptionHTML: '<p>Please note the updated hours for our amenities.</p>',
+    createdAt: '2024-12-19T14:00:00Z',
+    updatedAt: '2024-12-19T14:00:00Z',
+    messageReadCount: '0',
+  },
+  {
+    id: 3,
+    title: 'Holiday party invitation',
+    description: 'Join us for our annual holiday celebration! Food, drinks, and entertainment will be provided. Please RSVP by December 20th.',
+    descriptionHTML: '<p>Join us for our annual holiday celebration!</p>',
+    createdAt: '2024-12-17T09:00:00Z',
+    updatedAt: '2024-12-17T09:00:00Z',
+    messageReadCount: '1',
+    files: [
+      {
+        id: 2,
+        fileUrl: 'https://images.unsplash.com/photo-1482575832494-771f4d4c01d7?w=400&h=400&fit=crop',
+        label: 'holiday-party.jpg'
+      },
+      {
+        id: 3,
+        fileUrl: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=400&fit=crop',
+        label: 'party-details.jpg'
+      }
+    ],
+  },
 ];
 
 export const mockEvents: Event[] = [

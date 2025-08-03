@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS, PADDING, CARD_STYLES, TYPOGRAPHY, ICON_SIZES } from '@/constants/homeConstants';
+import { homeStrings } from '@/constants/strings';
 
 interface WiFiCardProps {
   onPress: () => void;
@@ -13,15 +14,15 @@ export const WiFiCard: React.FC<WiFiCardProps> = ({ onPress }) => {
       style={styles.card} 
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel="Wi-Fi network settings"
+      accessibilityLabel={homeStrings.wifi.title}
     >
       <View style={styles.content}>
         <View style={styles.cbxLogo}>
           <Text style={styles.cbxLogoText}>CBX</Text>
         </View>
-        <Text style={styles.title}>Wi-Fi network</Text>
+        <Text style={styles.title}>{homeStrings.wifi.title}</Text>
         <Text style={styles.description}>
-          View your network and password
+          {homeStrings.wifi.description}
         </Text>
       </View>
       {/* Chevron positioned at top-right of content like iOS */}

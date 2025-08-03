@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -8,8 +8,12 @@ import {
   StatusBar,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { useAppDispatch, useAppSelector } from '@/store';
+import { fetchHomeData } from '@/store/slices/homeSlice';
 import { useHeaderAnimation } from '@/hooks/useHeaderAnimation';
+import { RootStackParamList } from '@/navigation/RootNavigator';
 import {
   BulletinCard,
   EventCard,
@@ -19,7 +23,6 @@ import {
   SectionTitle,
 } from '@/components';
 import { 
-  mockBulletins, 
   mockEvents, 
   mockResources, 
   mockConnections 
@@ -34,17 +37,27 @@ import {
   SCREEN_WIDTH,
 } from '@/constants/homeConstants';
 
+type RootNavigationProp = StackNavigationProp<RootStackParamList>;
+
 export const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<RootNavigationProp>();
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
   const { user } = useAppSelector((state) => state.auth);
+  const { bulletins, events, resources, unreadBulletinsCount, isLoading } = useAppSelector((state) => state.home);
   const { scrollY, animations } = useHeaderAnimation();
+
+  // Fetch home data when component mounts or when user changes
+  useEffect(() => {
+    if (user?.propertyId) {
+      dispatch(fetchHomeData(user.propertyId));
+    }
+  }, [dispatch, user?.propertyId]);
 
   // Navigation handlers
   const handleBulletinPress = useCallback(() => {
-    // TODO: Navigate to Bulletins screen
-    console.log('Navigate to Bulletins');
-  }, []);
+    navigation.navigate('BulletinsList');
+  }, [navigation]);
 
   const handleEventPress = useCallback((event: Event) => {
     // TODO: Navigate to Event detail screen
@@ -126,7 +139,7 @@ export const HomeScreen: React.FC = () => {
         {/* Home Actions Section */}
         <View style={styles.homeActionsContainer}>
           <BulletinCard 
-            bulletins={mockBulletins}
+            unreadCount={unreadBulletinsCount}
             onPress={handleBulletinPress}
           />
         </View>

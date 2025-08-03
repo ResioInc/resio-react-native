@@ -234,25 +234,39 @@ export interface WifiInfo {
   supportWebsite: string;
 }
 
-// Bulletin types
+// Bulletin types - Matching actual API response
 export interface Bulletin {
   id: number;
-  title: string;
-  content: string;
-  author: string;
-  category: string;
-  isRead: boolean;
-  attachments?: Attachment[];
+  title?: string;
+  description?: string; // API field name (iOS maps this to responseDescription)
+  descriptionHTML?: string; // API: descriptionHtml
+  descriptionJson?: string; // API field
+  descriptionHtml?: string; // API field (alternate)
+  responseDescription?: string; // Legacy field name (for backward compatibility)
   createdAt: string;
+  updatedAt?: string;
+  publishDate?: string; // API field
+  messageReadCount?: string;
+  pinHomepage?: boolean;
+  files?: File[];
+  highlight?: boolean;
+  recipientType?: string; // API field
+  author?: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+  }; // API field
 }
 
-export interface Attachment {
+// File interface matching iOS API response exactly
+export interface File {
   id: number;
-  name: string;
-  url: string;
-  type: string;
-  size: number;
+  fileUrl: string; // Note: API uses 'fileUrl' not 'fileURL'
+  label: string;
 }
+
+
 
 // API Response types
 export interface ApiResponse<T> {
@@ -315,6 +329,7 @@ export interface HomeState {
   bulletins: Bulletin[];
   resources: CommunityResource[];
   linkedAccounts: any[];
+  unreadBulletinsCount: number;
   isLoading: boolean;
   error: string | null;
 }

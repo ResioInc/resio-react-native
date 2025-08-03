@@ -4,11 +4,20 @@ import { useAppSelector, useAppDispatch } from '@/store';
 import { checkAuthStatus } from '@/store/slices/authSlice';
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator } from './MainTabNavigator';
+import { BulletinsListScreen } from '@/screens/bulletins/BulletinsListScreen';
+import { BulletinDetailScreen } from '@/screens/bulletins/BulletinDetailScreen';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { Bulletin } from '@/types';
+import { notificationStrings } from '@/constants/strings';
 
 export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
+  // Bulletins screens at root level (iOS-style full screen)
+  BulletinsList: undefined;
+  BulletinDetail: {
+    bulletin: Bulletin;
+  };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -43,7 +52,41 @@ export const RootNavigator: React.FC = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isAuthenticated ? (
-        <Stack.Screen name="Main" component={MainTabNavigator} />
+        <>
+          <Stack.Screen name="Main" component={MainTabNavigator} />
+          {/* Bulletins screens presented full-screen (iOS style) */}
+          <Stack.Screen 
+            name="BulletinsList" 
+            component={BulletinsListScreen}
+            options={{
+              headerShown: true,
+              title: notificationStrings.title, // iOS: "notifications.title".localized = "Bulletins"
+              headerStyle: {
+                backgroundColor: '#F2F2F7', // iOS background color
+                shadowColor: 'transparent', // iOS: shadowImage = UIImage() (removes border)
+                elevation: 0, // Android: remove shadow
+                borderBottomWidth: 0, // Ensure no border on iOS
+              },
+              headerTintColor: '#000000', // iOS: NavigationBar.tintColorPrimary (resioBlack)
+              headerBackTitleVisible: false, // Hide "Back" text on iOS
+              headerTitleAlign: 'center', // Center the title like iOS
+              headerShadowVisible: false, // React Navigation v6: explicitly disable shadow
+              headerTitleStyle: {
+                fontSize: 15, // iOS: CSConstants.navigationTitleFontSize = 15.0
+                fontWeight: '700', // Heavy/Bold weight (cross-platform compatible)
+                fontFamily: 'System', // Use system font with heavy weight for consistency
+              },
+            }}
+          />
+          <Stack.Screen 
+            name="BulletinDetail" 
+            component={BulletinDetailScreen}
+            options={{
+              headerShown: false,
+              presentation: 'modal', // iOS-style modal presentation
+            }}
+          />
+        </>
       ) : (
         <Stack.Screen name="Auth" component={AuthNavigator} />
       )}

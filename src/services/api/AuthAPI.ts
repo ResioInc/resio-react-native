@@ -70,12 +70,12 @@ class AuthAPIService extends BaseAPI {
   }
 
   async getCurrentUser(): Promise<User> {
-    const response = await this.get<{ response: User }>('/user/me');
+    const response = await this.get<{ response: User }>('/api/v2/user/me');
     return response.response;
   }
 
   async updateUser(data: Partial<User>): Promise<User> {
-    const response = await this.put<{ response: User }>('/user/me', data);
+    const response = await this.put<{ response: User }>('/api/v2/user/me', data);
     return response.response;
   }
 
@@ -88,7 +88,7 @@ class AuthAPIService extends BaseAPI {
   }
 
   async deleteAccount(password: string): Promise<{ success: boolean }> {
-    const response = await this.delete<{ success: boolean }>('/user/me', {
+    const response = await this.delete<{ success: boolean }>('/api/v2/user/me', {
       data: { password },
     });
     return response;

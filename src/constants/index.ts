@@ -1,6 +1,9 @@
 // Re-export configuration
 export { AppConfig, isDevelopment, isProduction } from './config';
 
+// Re-export strings for localization
+export * from './strings';
+
 // Application constants
 export const APP_CONSTANTS = {
   // Navigation

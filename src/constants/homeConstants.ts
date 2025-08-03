@@ -1,4 +1,4 @@
-import { Dimensions } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
 // Screen dimensions
 export const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -9,33 +9,40 @@ export const BEGIN_ANIMATION_HEIGHT = 128; // 64 * 2, matching iOS
 export const PLACEHOLDER_HEIGHT = 180;
 export const CARD_OVERLAY_HEIGHT = 28;
 
-// iOS padding constants (matches iOS .Padding values)
+// iOS padding constants (matches iOS .Padding values exactly)
+// iOS: sizingFactor = 4.0
 export const PADDING = {
-  paddingHalf: 2,
-  padding1: 4,
-  padding2: 8,
-  padding3: 12,
-  padding4: 16,
-  padding5: 20,
-  padding6: 24,
-  padding7: 28,
-  padding8: 32,
-  padding10: 40,
+  paddingHalf: 2, // sizingFactor / 2 = 2.0
+  padding1: 4,    // sizingFactor = 4.0 (exact match)
+  padding2: 8,    // sizingFactor * 2 = 8.0
+  padding3: 12,   // sizingFactor * 3 = 12.0
+  padding4: 16,   // sizingFactor * 4 = 16.0 (exact match)
+  padding5: 20,   // sizingFactor * 5 = 20.0
+  padding6: 24,   // sizingFactor * 6 = 24.0
+  padding7: 28,   // sizingFactor * 7 = 28.0
+  padding8: 32,   // sizingFactor * 8 = 32.0
+  padding10: 40,  // sizingFactor * 10 = 40.0
 } as const;
 
-// Colors (should eventually move to a design system)
+// Colors (exact iOS values from UIColor+Extension.swift)
 export const COLORS = {
   background: '#F2F2F7',
   cardBackground: '#E3E3E3', // iOS .Card.primary (gray100) - matches iOS exactly
   cardBorder: '#C8C8C8', // iOS .Border.card (gray200) - matches iOS exactly
   primary: '#007AFF',
-  textPrimary: '#000000',
+  textPrimary: '#171717', // iOS .Text.primary: resioBlack #171717 (exact match)
   textSubtitle: '#8E8E93',
+  textDate: '#5E5E5E', // iOS .Text.date: gray600 #5E5E5E (exact match)
   separator: '#C7C7CC',
   iconBackground: '#E5F2FF',
   moreResourcesBackground: '#F2F2F7',
   red: '#FF3B30',
   shadow: '#000',
+  // Bulletin icon colors (matching iOS CircleIcon colors)
+  circleIconBackground: '#E5F2FF', // Default icon background
+  circleIconPrimaryTint: '#007AFF', // Default icon tint
+  circleIconNotificationBackground: '#FF3B30', // Notification background
+  circleIconSecondaryTint: '#FFFFFF', // Notification icon tint
 } as const;
 
 // Typography
@@ -88,6 +95,7 @@ export const ICON_SIZES = {
   small: 20,
   medium: 24,
   large: 40,
+  jumbo: 64, // For empty states (matching iOS jumbo size)
 } as const;
 
 // Animation values
@@ -102,7 +110,7 @@ export const ANIMATION = {
 export const CARD_STYLES = {
   backgroundColor: COLORS.cardBackground,
   borderRadius: 14, // iOS CornerRadius.card = 14.0
-  borderWidth: 0.33, // iOS BorderWidth.borderSmallest (hairline)
-  borderColor: COLORS.cardBorder,
+  borderWidth: StyleSheet.hairlineWidth, // iOS BorderWidth.borderSmallest (1.0 / UIScreen.main.scale)
+  borderColor: COLORS.cardBorder, // iOS .Border.card = gray200 (#C8C8C8)
   ...SHADOW.card,
 } as const;
