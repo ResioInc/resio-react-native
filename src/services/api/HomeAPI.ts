@@ -1,5 +1,7 @@
+import { LinkedAccount, Invitation } from '@/types/home';
 import { BaseAPI } from './BaseAPI';
 import { Event, Bulletin, CommunityResource, Lease, WifiInfo, UnitInfoResponse } from '@/types';
+import { InvitationStatus } from '@/constants/invitationStatus';
 
 class HomeAPIService extends BaseAPI {
   private static homeInstance: HomeAPIService;
@@ -100,6 +102,157 @@ class HomeAPIService extends BaseAPI {
     return response.response || [];
   }
 
+  /**
+   * Get linked accounts for the current user
+   * Matches iOS: Endpoint(domain: .resio(.v2), path: "users/connections")
+   */
+  async getLinkedAccounts(): Promise<LinkedAccount[]> {
+    try {
+      console.log('🔗 HomeAPI.getLinkedAccounts - Fetching linked accounts');
+      // Match iOS endpoint exactly: /api/v2/users/connections
+      const response = await this.get<{ success: boolean; response: LinkedAccount[] }>('/api/v2/users/connections');
+      console.log('🔗 HomeAPI.getLinkedAccounts - API Response:', response);
+      return response.response || [];
+    } catch (error) {
+      console.error('🔗 HomeAPI.getLinkedAccounts - API Error:', error);
+      // Re-throw with sanitized error message for security
+      throw new Error('Failed to fetch linked accounts');
+    }
+  }
+
+  /**
+   * Delete a linked account connection
+   * Matches iOS: Endpoint.Connections.deleteConnection(with: String(id), status: status)
+   */
+  async deleteLinkedAccount(accountId: number): Promise<void> {
+    // Validate inputs to prevent injection
+    if (!Number.isInteger(accountId) || accountId <= 0) {
+      throw new Error('Invalid account ID parameter');
+    }
+
+    try {
+      console.log('🔗 HomeAPI.deleteLinkedAccount - Deleting account ID:', accountId);
+      
+      // Match iOS exactly: use invitations endpoint with intent=CANCELLED status
+      // iOS enum Status: cancelled = 5
+      await this.delete(`/api/v2/users/invitations/${accountId}?intent=${InvitationStatus.CANCELLED}`);
+      console.log('🔗 HomeAPI.deleteLinkedAccount - Successfully deleted account');
+    } catch (error) {
+      console.error('🔗 HomeAPI.deleteLinkedAccount - API Error:', error);
+      // Re-throw with sanitized error message for security
+      throw new Error('Failed to delete linked account');
+    }
+  }
+
+  /**
+   * Get invitations for the current user
+   * Matches iOS: Endpoint(domain: .resio(.v2), path: "users/invitations")
+   */
+  async getInvitations(): Promise<Invitation[]> {
+    try {
+      console.log('📨 HomeAPI.getInvitations - Fetching invitations');
+      // Match iOS endpoint exactly: /api/v2/users/invitations
+      const response = await this.get<{ success: boolean; response: Invitation[] }>('/api/v2/users/invitations');
+      console.log('📨 HomeAPI.getInvitations - API Response:', response);
+      return response.response || [];
+    } catch (error) {
+      console.error('📨 HomeAPI.getInvitations - API Error:', error);
+      // Re-throw with sanitized error message for security
+      throw new Error('Failed to fetch invitations');
+    }
+  }
+
+  /**
+   * Accept an invitation
+   * Matches iOS: api.putInvitation(id: invite.id, status: .accepted)
+   */
+  async acceptInvitation(invitationId: number): Promise<void> {
+    // Validate inputs to prevent injection
+    if (!Number.isInteger(invitationId) || invitationId <= 0) {
+      throw new Error('Invalid invitation ID parameter');
+    }
+
+    try {
+      console.log('📨 HomeAPI.acceptInvitation - Accepting invitation ID:', invitationId);
+      // Match iOS: PUT /api/v2/users/invitations/{id} with status: ACCEPTED
+      await this.put(`/api/v2/users/invitations/${invitationId}`, { status: InvitationStatus.ACCEPTED });
+      console.log('📨 HomeAPI.acceptInvitation - Successfully accepted invitation');
+    } catch (error) {
+      console.error('📨 HomeAPI.acceptInvitation - API Error:', error);
+      // Re-throw with sanitized error message for security
+      throw new Error('Failed to accept invitation');
+    }
+  }
+
+  /**
+   * Decline/Cancel an invitation
+   * Matches iOS: api.deleteConnection(id: invite.id, status: invite.isSender ? .cancelled : .declined)
+   */
+  async declineInvitation(invitationId: number, sender: boolean): Promise<void> {
+    // Validate inputs to prevent injection
+    if (!Number.isInteger(invitationId) || invitationId <= 0) {
+      throw new Error('Invalid invitation ID parameter');
+    }
+
+    try {
+      console.log('📨 HomeAPI.declineInvitation - Declining invitation ID:', invitationId, 'sender:', sender);
+      // Match iOS logic: status = sender ? .cancelled : .declined
+      const status = sender ? InvitationStatus.CANCELLED : InvitationStatus.DECLINED;
+      await this.delete(`/api/v2/users/invitations/${invitationId}?intent=${status}`);
+      console.log('📨 HomeAPI.declineInvitation - Successfully declined invitation');
+    } catch (error) {
+      console.error('📨 HomeAPI.declineInvitation - API Error:', error);
+      // Re-throw with sanitized error message for security
+      throw new Error('Failed to decline invitation');
+    }
+  }
+
+  /**
+   * Send a new invitation
+   * Matches iOS: api.postInvitation(message: message, email: email)
+   */
+  async sendInvitation(email: string, message: string): Promise<void> {
+    // Basic validation
+    if (!email || !email.includes('@')) {
+      throw new Error('Invalid email address');
+    }
+    if (!message || message.trim().length === 0) {
+      throw new Error('Message cannot be empty');
+    }
+
+    try {
+      console.log('📨 HomeAPI.sendInvitation - Sending invitation to:', email);
+      // Match iOS endpoint: POST /api/v2/users/invitations
+      await this.post('/api/v2/users/invitations', { email, message });
+      console.log('📨 HomeAPI.sendInvitation - Successfully sent invitation');
+    } catch (error) {
+      console.error('📨 HomeAPI.sendInvitation - API Error:', error);
+      
+      // Handle specific error cases like iOS does
+      // BaseAPI formatError creates: { code: "409", message: "...", details?: ... }
+      if (error && typeof error === 'object') {
+        const apiError = error as any;
+        const statusCode = apiError.code; // "409", "500", etc.
+        const errorMessage = apiError.message;
+        
+        console.log('📨 HomeAPI.sendInvitation - Status Code:', statusCode, 'Message:', errorMessage);
+        
+        // For 409 (conflict), show a user-friendly duplicate invitation message
+        if (statusCode === '409' || statusCode === 409) {
+          throw new Error('This person has already been invited');
+        }
+        
+        // For other errors, show the server message if available  
+        if (errorMessage && !errorMessage.includes('Request failed with status code')) {
+          throw new Error(errorMessage);
+        }
+      }
+      
+      // Fallback for unknown errors
+      throw new Error('Failed to send invitation');
+    }
+  }
+
   async getPropertyInfo(propertyId: number): Promise<any> {
     const response = await this.get<{ response: any }>(`/api/v2/properties/${propertyId}`);
     return response.response;
@@ -126,7 +279,20 @@ class HomeAPIService extends BaseAPI {
       return response.response || {};
     } catch (error) {
       console.error('📶 HomeAPI.getUnitInfo - API Error:', error);
-      // Re-throw with sanitized error message for security
+      
+      // Handle 404 errors gracefully like iOS does - just log and return empty
+      // iOS behavior: print(errorDescription) and set wifiInfo = nil
+      if (error && typeof error === 'object') {
+        const apiError = error as any;
+        const statusCode = apiError.code;
+        
+        if (statusCode === '404' || statusCode === 404) {
+          console.log('📶 HomeAPI.getUnitInfo - No unit information found (404) - treating as no WiFi info available');
+          return {}; // Return empty response, which will result in null WiFi info
+        }
+      }
+      
+      // Re-throw other errors (non-404) for genuine failures
       throw new Error('Failed to fetch unit WiFi information');
     }
   }

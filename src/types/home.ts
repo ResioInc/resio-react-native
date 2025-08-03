@@ -48,6 +48,33 @@ export interface CommunityResource {
   iconName?: string; // Maps to icon
 }
 
+// LinkedAccount type matching iOS exactly
+export interface LinkedAccount {
+  id: number;
+  isSender: boolean; // Maps from iOS "sender" field
+  user: UserInfo;
+  connectedSince: string;
+}
+
+// UserInfo type matching iOS exactly
+export interface UserInfo {
+  id: number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  type: string; // UserType in iOS
+  photoUrl?: string;
+}
+
+// Invitation type matching iOS exactly
+export interface Invitation {
+  id: number;
+  sender: boolean; // Maps from iOS "sender" field (keeping original API field name)
+  user: UserInfo;
+  createdAt: string;
+}
+
+// Legacy Connection interface for backward compatibility
 export interface Connection {
   id: number;
   user: {

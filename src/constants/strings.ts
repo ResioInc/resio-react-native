@@ -332,10 +332,8 @@ export const strings = {
     },
   },
 
-  // CONNECTIONS
-  connections: {
-    title: "Linked accounts",
-  },
+  // CONNECTIONS (Legacy - keeping for backward compatibility)
+  // Note: Updated connections strings are at the end of this file
 
   // COMMUNITY RESOURCES
   communityResources: {
@@ -362,6 +360,71 @@ export const strings = {
       description: "Guarantor",
     },
   },
+  linkedAccounts: {
+    title: 'Accounts',
+    cardTitle: 'Linked Accounts',
+    cardDescription: "Invite people and they'll be able to make payments on your behalf",
+    cell: {
+      sender: 'You can receive payments from this account',
+      connectedSinceFormatted: 'Connected %@',
+      removeTitle: 'Remove connection',
+    },
+    confirmDelete: {
+      title: 'Remove Connection',
+      description: 'Are you sure you want to remove this connection?',
+    },
+    empty: {
+      title: 'No linked accounts',
+      description: 'Once you send an invitation to someone and they accept it, your linked accounts will be displayed here.',
+    },
+  },
+  invitations: {
+    title: 'Invitations',
+    sendInvite: {
+      title: 'Send a new invitation',
+      description: 'You will need the email address of the person with whom you wish to connect.',
+      cta: 'New invitation',
+    },
+    cell: {
+      didInvite: 'You sent this invitation',
+      wasInvited: 'Has invited you to connect',
+      ctaTitle: 'Accept Invitation',
+      cancelTitle: 'Cancel Invitation',
+      declineTitle: 'Decline',
+    },
+    confirmCancel: {
+      title: 'Cancel Invitation',
+      description: 'Are you sure you want to cancel this invitation?',
+    },
+    confirmDecline: {
+      title: 'Decline Invitation', 
+      description: 'Are you sure you want to decline this invitation?',
+    },
+    empty: {
+      title: 'No invitations',
+      description: 'Sent and received invitations will appear here.',
+    },
+  },
+  connections: {
+    title: 'Connections',
+  },
+  newInvitation: {
+    title: 'New Invitation',
+    header: 'Please enter the email address of the person with whom you wish to connect.',
+    emailPlaceholder: 'Email',
+    messageFormatted: 'Hi, Let\'s connect on Resio!\n\nWith Resio, you\'ll be able to make payments on my behalf. To get started, simply click the \'Accept invitation\' button.\n\nThanks so much for all your support!\n%@', // %@ will be replaced with user's full name
+    buttonTitle: 'Send Invitation',
+    howItWorks: {
+      item1: {
+        title: 'How it works',
+        detail: 'An email will be sent for their confirmation. Once they have confirmed, they will be able to make a payment to your account. If you are both residents of our property, they will also be able to see your roommates.',
+      },
+      item2: {
+        title: 'What information is shared?',
+        detail: 'When you invite someone, they will see your outstanding balance, recurring charges, and past payments they have made on your lease. We will not share line item details of your charges or your personal information.',
+      },
+    },
+  },
 } as const;
 
 // Helper function for dynamic strings with parameters
@@ -377,3 +440,7 @@ export const errorStrings = strings.error;
 export const profileStrings = strings.profile;
 export const commonStrings = strings.common;
 export const eventStrings = strings.events;
+export const linkedAccountsStrings = strings.linkedAccounts;
+export const invitationsStrings = strings.invitations;
+export const connectionsStrings = strings.connections;
+export const newInvitationStrings = strings.newInvitation;

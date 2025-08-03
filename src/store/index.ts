@@ -3,12 +3,14 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import authReducer from './slices/authSlice';
 import homeReducer from './slices/homeSlice';
 import wifiReducer from './slices/wifiSlice';
+import invitationsReducer from './slices/invitationsSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     home: homeReducer,
     wifi: wifiReducer,
+    invitations: invitationsReducer,
   },
 });
 

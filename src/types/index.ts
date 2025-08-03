@@ -539,15 +539,21 @@ export interface AuthState {
   biometricEnabled: boolean;
 }
 
+// Import LinkedAccount and Invitation from home.ts for use in HomeState
+import type { LinkedAccount, Invitation } from './home';
+
 export interface HomeState {
   events: Event[];
   bulletins: Bulletin[];
   resources: CommunityResource[];
-  linkedAccounts: any[];
+  linkedAccounts: LinkedAccount[];
   unreadBulletinsCount: number;
   isLoading: boolean;
   error: string | null;
 }
+
+// Re-export specific types for convenience
+export type { LinkedAccount, Invitation } from './home';
 
 export interface PaymentState {
   paymentMethods: PaymentMethod[];
@@ -555,4 +561,4 @@ export interface PaymentState {
   fees: ConvenienceFees | null;
   isLoading: boolean;
   error: string | null;
-} 
+}

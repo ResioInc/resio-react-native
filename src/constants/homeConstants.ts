@@ -22,11 +22,13 @@ export const PADDING = {
   padding7: 28,   // sizingFactor * 7 = 28.0
   padding8: 32,   // sizingFactor * 8 = 32.0
   padding10: 40,  // sizingFactor * 10 = 40.0
+  padding12: 48,  // sizingFactor * 12 = 48.0 (iOS EmptyResultsView)
 } as const;
 
 // Colors (exact iOS values from UIColor+Extension.swift)
 export const COLORS = {
-  background: '#F2F2F7',
+  background: '#F2F2F7', // iOS .Background.primary
+  backgroundSecondary: '#E3E3E3', // iOS .Background.secondary (gray100 - same as cardBackground)
   cardBackground: '#E3E3E3', // iOS .Card.primary (gray100) - matches iOS exactly
   cardBorder: '#C8C8C8', // iOS .Border.card (gray200) - matches iOS exactly
   primary: '#007AFF',

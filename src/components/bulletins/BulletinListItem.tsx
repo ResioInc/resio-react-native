@@ -2,15 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Animated } from 'react-native';
 import { Bulletin } from '@/types';
 import { COLORS, PADDING, CARD_STYLES, TYPOGRAPHY } from '@/constants/homeConstants';
-import { formatRelativeDate } from '@/utils/utils';
-
-// Inline sanitizeFileURL function (temporary fix for import issue)
-const sanitizeFileURL = (url?: string): string | null => {
-  if (!url) return null;
-  if (!url.match(/^https?:\/\//i)) return null;
-  if (url.match(/^(javascript|data):/i)) return null;
-  return url.trim();
-};
+import { formatRelativeDate, sanitizeFileURL } from '@/utils/utils';
 
 interface BulletinListItemProps {
   bulletin: Bulletin;

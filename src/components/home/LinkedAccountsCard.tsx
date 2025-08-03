@@ -1,20 +1,21 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Connection } from '@/types/home';
 import { COLORS, PADDING, CARD_STYLES, TYPOGRAPHY, ICON_SIZES } from '@/constants/homeConstants';
+import { linkedAccountsStrings } from '@/constants/strings';
+import { LinkedAccount } from '@/types/home';
 
 interface LinkedAccountsCardProps {
-  connections: Connection[];
+  linkedAccounts: LinkedAccount[];
   onPress: () => void;
 }
 
 export const LinkedAccountsCard: React.FC<LinkedAccountsCardProps> = ({ 
-  connections, 
+  linkedAccounts, 
   onPress 
 }) => {
-  const visibleConnections = connections.length > 4 ? connections.slice(0, 4) : connections;
-  const hasMoreThanFour = connections.length > 4;
+  const visibleAccounts = linkedAccounts.length > 4 ? linkedAccounts.slice(0, 4) : linkedAccounts;
+  const hasMoreThanFour = linkedAccounts.length > 4;
 
   return (
     <TouchableOpacity 
@@ -23,19 +24,29 @@ export const LinkedAccountsCard: React.FC<LinkedAccountsCardProps> = ({
       accessibilityRole="button"
       accessibilityLabel="Linked Accounts - Invite people to make payments on your behalf"
     >
-      {/* Avatar Stack - matches iOS avatarStack positioning */}
+      {/* Avatar Stack - matches iOS avatarStack positioning exactly */}
       <View style={styles.avatarStack}>
-        {visibleConnections.map((connection, index) => (
-          <View 
-            key={connection.id} 
-            style={[
-              styles.avatar, 
-              { marginLeft: index > 0 ? -10 : 0, zIndex: visibleConnections.length - index }
-            ]}
-          >
-            <Icon name="person" size={ICON_SIZES.small} color={COLORS.textPrimary} />
-          </View>
-        ))}
+        {visibleAccounts.map((linkedAccount, index) => {
+          return (
+            <View 
+              key={linkedAccount.id} 
+              style={[
+                styles.avatar, 
+                { marginLeft: index > 0 ? -10 : 0, zIndex: visibleAccounts.length - index }
+              ]}
+            >
+              {linkedAccount.user.photoUrl ? (
+                <Image 
+                  source={{ uri: linkedAccount.user.photoUrl }} 
+                  style={styles.avatarImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Icon name="person" size={ICON_SIZES.small} color={COLORS.textPrimary} />
+              )}
+            </View>
+          );
+        })}
         {hasMoreThanFour && (
           <View style={[styles.avatar, styles.plusAvatar]}>
             <Icon name="add" size={16} color={COLORS.textPrimary} />
@@ -52,11 +63,11 @@ export const LinkedAccountsCard: React.FC<LinkedAccountsCardProps> = ({
       />
 
       {/* Title - positioned below avatars like iOS */}
-      <Text style={styles.title}>Linked Accounts</Text>
+      <Text style={styles.title}>{linkedAccountsStrings.cardTitle}</Text>
 
       {/* Description - positioned below title like iOS */}
       <Text style={styles.description} numberOfLines={0}>
-        Invite people and they'll be able to make payments on your behalf
+        {linkedAccountsStrings.cardDescription}
       </Text>
     </TouchableOpacity>
   );
@@ -85,6 +96,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: COLORS.cardBackground,
+    overflow: 'hidden', // For image clipping
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 18,
   },
   plusAvatar: {
     backgroundColor: COLORS.separator, // Different color for plus icon

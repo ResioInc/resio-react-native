@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { fetchHomeData } from '@/store/slices/homeSlice';
+import { fetchWifiInfo } from '@/store/slices/wifiSlice';
 import { useHeaderAnimation } from '@/hooks/useHeaderAnimation';
 import { RootStackParamList } from '@/navigation/RootNavigator';
 import {
@@ -22,9 +23,6 @@ import {
   LinkedAccountsCard,
   SectionTitle,
 } from '@/components';
-import { 
-  mockConnections 
-} from '@/data/mockHomeData';
 import { Event, CommunityResource } from '@/types/home';
 import {
   COLORS,
@@ -43,26 +41,40 @@ type RootNavigationProp = StackNavigationProp<RootStackParamList>;
 // TODO: qr code generator
 // TODO: scrolling speed
 
+// When sending an invite, server responds with 500 error on react native but 401 (api key required) on iOS swift
+
+// npx react-native run ios to build and run the app
+
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<RootNavigationProp>();
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
   const { user } = useAppSelector((state) => state.auth);
-  const { bulletins, events, resources, unreadBulletinsCount, isLoading } = useAppSelector((state) => state.home);
+  const { bulletins, events, resources, linkedAccounts, unreadBulletinsCount, isLoading } = useAppSelector((state) => state.home);
+  const { wifiInfo } = useAppSelector((state) => state.wifi);
   const { scrollY, animations } = useHeaderAnimation();
   
-  // Check for undefined events
+  // Check for undefined events and filter valid events
+  const validEvents = events.filter((event) => event && event.id);
   const undefinedEvents = events.filter(event => !event);
   if (undefinedEvents.length > 0) {
     console.error('🏡 HomeScreen - Found undefined events:', undefinedEvents.length);
   }
+  
+  // iOS behavior: Hide sections when empty/unavailable
+  const shouldShowEventsSection = validEvents.length > 0;
+  const shouldShowWiFiCard = wifiInfo !== null;
 
   // Fetch home data when component mounts or when user changes
   useEffect(() => {
     if (user?.propertyId) {
       dispatch(fetchHomeData(user.propertyId));
     }
-  }, [dispatch, user?.propertyId]);
+    // Fetch WiFi info if lease ID is available (matches iOS loadUnitInfo behavior)
+    if (user?.currentLeaseId) {
+      dispatch(fetchWifiInfo(user.currentLeaseId));
+    }
+  }, [dispatch, user?.propertyId, user?.currentLeaseId]);
 
   // Navigation handlers
   const handleBulletinPress = useCallback(() => {
@@ -88,9 +100,8 @@ export const HomeScreen: React.FC = () => {
   }, [navigation]);
 
   const handleLinkedAccountsPress = useCallback(() => {
-    // TODO: Navigate to Linked Accounts screen
-    console.log('Navigate to Linked Accounts');
-  }, []);
+    navigation.navigate('LinkedAccounts');
+  }, [navigation]);
 
   // Render resource grid based on position like iOS
   const renderResourceGrid = useCallback(() => {
@@ -198,32 +209,33 @@ export const HomeScreen: React.FC = () => {
           />
         </View>
 
-        {/* Events Section - Consistent padding with other sections */}
-        <View style={styles.eventsSection}>
-          <SectionTitle title={homeStrings.upcomingEvents.title} />
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.eventsScrollContainer}
-            style={styles.eventsCollectionView}
-          >
-            {events
-              .filter((event) => event && event.id) // Filter out undefined/null events
-              .map((event) => (
+        {/* Events Section - Hidden when no events (matches iOS behavior) */}
+        {shouldShowEventsSection && (
+          <View style={styles.eventsSection}>
+            <SectionTitle title={homeStrings.upcomingEvents.title} />
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.eventsScrollContainer}
+              style={styles.eventsCollectionView}
+            >
+              {validEvents.map((event) => (
                 <EventCard
                   key={event.id}
                   event={event}
                   onPress={handleEventPress}
                 />
               ))}
-          </ScrollView>
-        </View>
+            </ScrollView>
+          </View>
+        )}
 
         {/* Community Resources Section */}
         <View style={styles.communityResourcesSection}>
           <SectionTitle title={homeStrings.communityResources.title} />
           
-          <WiFiCard onPress={handleWiFiPress} />
+          {/* WiFi Card - Hidden when no WiFi info available (matches iOS behavior) */}
+          {shouldShowWiFiCard && <WiFiCard onPress={handleWiFiPress} />}
 
           {/* Resource Grid - Position-based like iOS */}
           {renderResourceGrid()}
@@ -239,7 +251,7 @@ export const HomeScreen: React.FC = () => {
         {/* Linked Accounts Section */}
         <View style={styles.linkedAccountsSection}>
           <LinkedAccountsCard 
-            connections={mockConnections}
+            linkedAccounts={linkedAccounts}
             onPress={handleLinkedAccountsPress}
           />
         </View>

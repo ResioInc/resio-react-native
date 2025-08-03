@@ -70,6 +70,7 @@ export const BulletinsListScreen: React.FC = () => {
       console.log('CSCurrentUser has no associated property.'); // iOS log message
       return;
     }
+    console.log('Loading bulletins for property:', user.propertyId);
 
     try {
       const pageNum = isFirstPage ? 0 : currentPage + 1;

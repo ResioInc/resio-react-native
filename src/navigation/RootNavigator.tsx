@@ -12,9 +12,11 @@ import { ResourceDetailScreen } from '@/screens/resources/ResourceDetailScreen';
 import { MoreResourcesScreen } from '@/screens/resources/MoreResourcesScreen';
 import { ContactOfficeScreen } from '@/screens/contact/ContactOfficeScreen';
 import { WebViewScreen } from '@/screens/web/WebViewScreen';
+import { LinkedAccountsScreen } from '@/screens/linkedAccounts/LinkedAccountsScreen';
+import { NewInvitationScreen } from '@/screens/invitations/NewInvitationScreen';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { Bulletin, Event, CommunityResource } from '@/types';
-import { notificationStrings } from '@/constants/strings';
+import { notificationStrings, linkedAccountsStrings, newInvitationStrings } from '@/constants/strings';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -41,6 +43,10 @@ export type RootStackParamList = {
     url: string;
     title: string;
   };
+  // Linked Accounts screen
+  LinkedAccounts: undefined;
+  // New Invitation screen
+  NewInvitation: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -200,6 +206,55 @@ export const RootNavigator: React.FC = () => {
             component={WebViewScreen}
             options={{
               headerShown: true,
+              presentation: 'card', // Standard push navigation like iOS
+              headerStyle: {
+                backgroundColor: '#F2F2F7', // iOS background color
+                shadowColor: 'transparent',
+                elevation: 0,
+                borderBottomWidth: 0,
+              },
+              headerTintColor: '#000000',
+              headerBackTitleVisible: false,
+              headerTitleAlign: 'center',
+              headerShadowVisible: false,
+              headerTitleStyle: {
+                fontSize: 15,
+                fontWeight: '700',
+                fontFamily: 'System',
+              },
+            }}
+          />
+          <Stack.Screen 
+            name="LinkedAccounts" 
+            component={LinkedAccountsScreen}
+            options={{
+              headerShown: true,
+              title: linkedAccountsStrings.title, // iOS: "linked.accounts.title".localized = "Accounts"
+              presentation: 'card', // Standard push navigation like iOS
+              headerStyle: {
+                backgroundColor: '#F2F2F7', // iOS background color
+                shadowColor: 'transparent',
+                elevation: 0,
+                borderBottomWidth: 0,
+              },
+              headerTintColor: '#000000',
+              headerBackTitleVisible: false,
+              headerTitleAlign: 'center',
+              headerShadowVisible: false,
+              headerTitleStyle: {
+                fontSize: 15,
+                fontWeight: '700',
+                fontFamily: 'System',
+              },
+            }}
+          />
+          
+          <Stack.Screen 
+            name="NewInvitation" 
+            component={NewInvitationScreen}
+            options={{
+              headerShown: true,
+              title: newInvitationStrings.title, // iOS: "New Invitation"
               presentation: 'card', // Standard push navigation like iOS
               headerStyle: {
                 backgroundColor: '#F2F2F7', // iOS background color

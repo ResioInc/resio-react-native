@@ -187,3 +187,11 @@ export const isValidPhoneNumber = (phoneNumber: string): boolean => {
   const cleaned = cleanPhoneNumber(phoneNumber);
   return cleaned.length === 10;
 };
+
+  // Helper function to get display name like iOS UserInfo.displayName()
+  export const getDisplayName = (firstName: string | undefined, lastName: string | undefined) => {
+    const fullName = [firstName, lastName]
+      .filter(Boolean)
+      .join(' ');
+    return fullName || undefined;
+  };

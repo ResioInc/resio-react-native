@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { HomeState, Event, Bulletin, CommunityResource } from '@/types';
+import { HomeState} from '@/types';
 import { HomeAPI } from '@services/api/HomeAPI';
 
 const initialState: HomeState = {
@@ -16,10 +16,11 @@ const initialState: HomeState = {
 export const fetchHomeData = createAsyncThunk(
   'home/fetchData',
   async (propertyId?: number) => {
-    const [events, bulletins, resources, unreadBulletinsCount] = await Promise.all([
+    const [events, bulletins, resources, linkedAccounts, unreadBulletinsCount] = await Promise.all([
       HomeAPI.getEvents(),
       HomeAPI.getBulletins(propertyId),
       HomeAPI.getCommunityResources(propertyId),
+      HomeAPI.getLinkedAccounts(),
       propertyId ? HomeAPI.getUnreadBulletinsCount(propertyId) : Promise.resolve(0),
     ]);
     
@@ -30,7 +31,7 @@ export const fetchHomeData = createAsyncThunk(
       console.warn('🏠 fetchHomeData - Filtered out', events.length - validEvents.length, 'invalid events');
     }
     
-    return { events: validEvents, bulletins, resources, unreadBulletinsCount };
+    return { events: validEvents, bulletins, resources, linkedAccounts, unreadBulletinsCount };
   }
 );
 
@@ -97,6 +98,34 @@ export const setEventRSVP = createAsyncThunk(
   }
 );
 
+export const fetchLinkedAccounts = createAsyncThunk(
+  'home/fetchLinkedAccounts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const linkedAccounts = await HomeAPI.getLinkedAccounts();
+      return linkedAccounts;
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to fetch linked accounts'
+      );
+    }
+  }
+);
+
+export const deleteLinkedAccount = createAsyncThunk(
+  'home/deleteLinkedAccount',
+  async (accountId: number, { rejectWithValue }) => {
+    try {
+      await HomeAPI.deleteLinkedAccount(accountId);
+      return accountId;
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to delete linked account'
+      );
+    }
+  }
+);
+
 // Slice
 const homeSlice = createSlice({
   name: 'home',
@@ -107,6 +136,11 @@ const homeSlice = createSlice({
     },
     setLinkedAccounts: (state, action) => {
       state.linkedAccounts = action.payload;
+    },
+    removeLinkedAccount: (state, action) => {
+      state.linkedAccounts = state.linkedAccounts.filter(
+        account => account.id !== action.payload
+      );
     },
     markBulletinAsRead: (state, action) => {
       const bulletin = state.bulletins.find(b => b.id === action.payload);
@@ -128,6 +162,7 @@ const homeSlice = createSlice({
         state.events = action.payload.events;
         state.bulletins = action.payload.bulletins;
         state.resources = action.payload.resources;
+        state.linkedAccounts = action.payload.linkedAccounts;
         state.unreadBulletinsCount = action.payload.unreadBulletinsCount;
       })
       .addCase(fetchHomeData.rejected, (state, action) => {
@@ -185,8 +220,43 @@ const homeSlice = createSlice({
       .addCase(setEventRSVP.rejected, (state, action) => {
         state.error = action.payload as string || 'Failed to update RSVP';
       });
+    
+    // Fetch Linked Accounts
+    builder
+      .addCase(fetchLinkedAccounts.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchLinkedAccounts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.linkedAccounts = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchLinkedAccounts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string || 'Failed to fetch linked accounts';
+      });
+    
+    // Delete Linked Account
+    builder
+      .addCase(deleteLinkedAccount.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteLinkedAccount.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Remove the deleted account from the list
+        state.linkedAccounts = state.linkedAccounts.filter(
+          account => account.id !== action.payload
+        );
+        state.error = null;
+      })
+      .addCase(deleteLinkedAccount.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string || 'Failed to delete linked account';
+      });
   },
 });
 
-export const { clearError, setLinkedAccounts, markBulletinAsRead } = homeSlice.actions;
+export const { clearError, setLinkedAccounts, removeLinkedAccount, markBulletinAsRead } = homeSlice.actions;
 export default homeSlice.reducer; 

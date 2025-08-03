@@ -13,7 +13,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { ImageCarousel } from '@/components/bulletins/ImageCarousel';
 import { Bulletin } from '@/types';
 import { COLORS, PADDING } from '@/constants/homeConstants';
-import { formatRelativeDate } from '@/utils/utils';
+import { cleanDescription, formatRelativeDate } from '@/utils/utils';
 
 
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -41,12 +41,13 @@ export const BulletinDetailScreen: React.FC<BulletinDetailScreenProps> = ({
   // Use the actual API field 'description' (iOS maps this to responseDescription)
   const descriptionText = bulletin.description || bulletin.responseDescription || '';
 
-   const cleanDescription = (text?: string): string => {
-    if (!text) return '';
+  // temporary fix for import issue
+  //  const cleanDescription = (text?: string): string => {
+  //   if (!text) return '';
     
-    // Remove returns and normalize whitespace (matching iOS .replaceReturns())
-    return text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
-  };
+  //   // Remove returns and normalize whitespace (matching iOS .replaceReturns())
+  //   return text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+  // };
 
   const handleClose = () => {
     navigation.goBack();

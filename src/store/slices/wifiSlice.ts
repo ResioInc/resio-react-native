@@ -3,13 +3,6 @@ import { WifiState, WifiInfo, WifiConnectionStatus } from '@/types';
 import { HomeAPI } from '@services/api/HomeAPI';
 import WifiService from '@/services/wifi/WifiService';
 
-// Development-only logging utility
-const devLog = (message: string, ...args: any[]) => {
-  if (__DEV__) {
-    console.log(message, ...args);
-  }
-};
-
 const initialState: WifiState = {
   wifiInfo: null,
   connectionStatus: WifiConnectionStatus.UNKNOWN,
