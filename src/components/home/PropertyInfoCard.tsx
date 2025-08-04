@@ -11,10 +11,8 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { CommunityResourceIconColors } from '@/constants/communityResourceIcons';
 import {
-  COLORS,
   PADDING,
   CARD_STYLES,
-  TYPOGRAPHY,
   ICON_SIZES,
   SCREEN_WIDTH,
 } from '@/constants/homeConstants';

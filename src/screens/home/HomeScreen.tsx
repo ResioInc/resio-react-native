@@ -38,7 +38,6 @@ type RootNavigationProp = StackNavigationProp<RootStackParamList>;
 
 // TODO: drag to drop modals
 // TODO: qr code generator
-// TODO: scrolling speed
 
 // When sending an invite, server responds with 500 error on react native but 401 (api key required) on iOS swift
 
@@ -47,7 +46,7 @@ export const HomeScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
   const { user } = useAppSelector((state) => state.auth);
-  const { bulletins, events, resources, linkedAccounts, unreadBulletinsCount, isLoading } = useAppSelector((state) => state.home);
+  const { events, resources, linkedAccounts, unreadBulletinsCount } = useAppSelector((state) => state.home);
   const { wifiInfo } = useAppSelector((state) => state.wifi);
   const { scrollY, animations } = useHeaderAnimation();
   

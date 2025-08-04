@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, LayoutAnimation } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { COLORS, PADDING, CARD_STYLES } from '@/constants/homeConstants';
+import { COLORS, PADDING } from '@/constants/homeConstants';
 
 interface ExpandableInfoItemProps {
   title: string;

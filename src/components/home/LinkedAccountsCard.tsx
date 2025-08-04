@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { COLORS, PADDING, CARD_STYLES, TYPOGRAPHY, ICON_SIZES } from '@/constants/homeConstants';
+import { COLORS, PADDING, CARD_STYLES, ICON_SIZES } from '@/constants/homeConstants';
 import { linkedAccountsStrings } from '@/constants/strings';
 import { LinkedAccount } from '@/types/home';
 

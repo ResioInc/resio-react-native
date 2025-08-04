@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 import { SecureStorage } from '../storage/SecureStorage';
-import { ApiResponse, ApiError as AppApiError } from '@/types';
+import { ApiError as AppApiError } from '@/types';
 import { AppConfig } from '@/constants/config';
 import { AuthEndpoints } from './endpoints/AuthEndpoints';
 

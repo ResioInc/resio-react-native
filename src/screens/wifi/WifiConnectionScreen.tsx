@@ -7,17 +7,17 @@ import {
   StatusBar,
   Alert,
   TouchableOpacity,
-  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import QRCode from 'react-native-qrcode-svg';
 
 import { useAppDispatch, useAppSelector } from '@/store';
 import { fetchWifiInfo, connectToWifi, disconnectFromWifi, clearError, updateConnectionStatus } from '@/store/slices/wifiSlice';
 import { WifiConnectionButton, InfoRow, WifiSupportRow } from '@/components';
 import { WifiSupportType, WifiConnectionStatus, WifiSupportOption } from '@/types';
-import { COLORS, PADDING, CARD_STYLES, TYPOGRAPHY, ICON_SIZES } from '@/constants/homeConstants';
+import { COLORS, PADDING, CARD_STYLES, ICON_SIZES } from '@/constants/homeConstants';
 import { strings } from '@/constants/strings';
 import WifiService from '@/services/wifi/WifiService';
 
@@ -106,13 +106,6 @@ export const WifiConnectionScreen: React.FC = () => {
         icon: 'mail-outline',
         urlPrefix: 'mailto:',
       },
-      {
-        type: WifiSupportType.WEBSITE,
-        title: 'Support Website', // Keep this one as is, since it's not in iOS strings
-        value: wifiInfo.supportWebsite,
-        icon: 'globe-outline',
-        urlPrefix: 'https://',
-      },
     ];
   };
 
@@ -159,7 +152,7 @@ export const WifiConnectionScreen: React.FC = () => {
               {strings.wifi.noInfo.subtitle}
             </Text>
             
-            {/* Default support contact */}
+            {/* Default support contact - matches iOS hardcoded value */}
             <WifiSupportRow
               option={{
                 type: WifiSupportType.TEXT,
@@ -205,7 +198,7 @@ export const WifiConnectionScreen: React.FC = () => {
         {wifiInfo && (
           <View style={styles.card}>
             <TouchableOpacity style={styles.qrButton} onPress={handleQRCodePress}>
-              <Icon name="information-circle" size={ICON_SIZES.large} color={COLORS.textPrimary} />
+              <Icon name="qr-code" size={ICON_SIZES.large} color="white" />
             </TouchableOpacity>
             
             <InfoRow title={strings.wifi.info.network} value={wifiInfo.ssid} />
@@ -240,25 +233,41 @@ export const WifiConnectionScreen: React.FC = () => {
         )}
       </ScrollView>
 
-      {/* QR Code Modal */}
+      {/* QR Code Modal - matches iOS BLTNPageItem bulletin */}
       {showQRCode && wifiInfo && (
-        <View style={styles.qrModal}>
-          <View style={styles.qrModalContent}>
-            <Text style={styles.qrModalTitle}>WiFi Connection String</Text>
-            <View style={styles.qrDataContainer}>
-              <Text style={styles.qrDataText}>{qrCodeData}</Text>
-            </View>
-            <Text style={styles.qrDataHint}>
-              Copy this string to manually configure your WiFi connection
-            </Text>
+        <TouchableOpacity 
+          style={styles.qrModal}
+          activeOpacity={1}
+          onPress={() => setShowQRCode(false)}
+        >
+          <TouchableOpacity 
+            style={styles.qrModalContent}
+            activeOpacity={1}
+            onPress={() => {}} // Prevent modal close when tapping content
+          >
+            {/* Close button positioned absolutely in top right */}
             <TouchableOpacity
               style={styles.qrModalCloseButton}
               onPress={() => setShowQRCode(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
             >
-              <Text style={styles.qrModalCloseText}>Close</Text>
+              <Icon name="close" size={18} color="#FFFFFF" />
             </TouchableOpacity>
-          </View>
-        </View>
+
+            {/* Title centered at top */}
+            <Text style={styles.qrModalTitle}>{strings.wifi.qrCode.title}</Text>
+            
+            <View style={styles.qrCodeContainer}>
+              <QRCode
+                value={qrCodeData}
+                size={280}
+                color="black"
+                backgroundColor="white"
+              />
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -388,7 +397,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // QR Code Modal
+  // QR Code Modal - iOS BLTNPageItem bulletin style
   qrModal: {
     position: 'absolute',
     top: 0,
@@ -401,46 +410,51 @@ const styles = StyleSheet.create({
   },
   qrModalContent: {
     backgroundColor: 'white',
-    borderRadius: 12,
+    borderRadius: 40,
     padding: PADDING.padding6,
     alignItems: 'center',
-    marginHorizontal: PADDING.padding4,
+    justifyContent: 'center',
+    marginHorizontal: PADDING.padding3, // Smaller margins for larger modal
+    width: '90%', // Take up most of the screen width like iOS
+    height: '85%',
+    maxWidth: 400,
+    position: 'relative', // Enable absolute positioning for children
   },
   qrModalTitle: {
-    fontSize: 18,
+    position: 'absolute',
+    top: PADDING.padding4, // Same top position as close button
+    left: 40, // Leave space for close button (32px + 8px margin)
+    right: 40, // Leave space for close button (32px + 8px margin)
+    fontSize: 15,
     fontWeight: '600',
     color: COLORS.textPrimary,
-    marginBottom: PADDING.padding4,
+    textAlign: 'center',
+    lineHeight: 32, // Match close button height for vertical alignment
+    zIndex: 2, // Above close button
   },
-  qrDataContainer: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
+  qrCodeContainer: {
+    backgroundColor: 'white',
     padding: PADDING.padding4,
-    marginBottom: PADDING.padding3,
-    width: '100%',
-  },
-  qrDataText: {
-    fontSize: 12,
-    fontFamily: 'Courier',
-    color: COLORS.textPrimary,
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  qrDataHint: {
-    fontSize: 12,
-    color: COLORS.textSubtitle,
-    textAlign: 'center',
-    marginBottom: PADDING.padding4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: PADDING.padding10, // Add top margin to account for absolutely positioned title
   },
   qrModalCloseButton: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: PADDING.padding6,
-    paddingVertical: PADDING.padding3,
-    borderRadius: 8,
-    marginTop: PADDING.padding4,
-  },
-  qrModalCloseText: {
-    color: 'white',
-    fontWeight: '600',
+    position: 'absolute',
+    top: PADDING.padding4, // Position from top
+    right: PADDING.padding4, // Position from right
+    width: 28, // iOS: .CloseButton.diameter = 24.0
+    height: 28, // iOS: .CloseButton.diameter = 24.0  
+    borderRadius: 18, // iOS: .CloseButton.radius = 12.0
+    backgroundColor: 'rgba(0, 0, 0, 0.55)', // iOS: .Button.closeBackground = blackOverlay55
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 3, // Above title and other content
+    // iOS shadow for close button
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });

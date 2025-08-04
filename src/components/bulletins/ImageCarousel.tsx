@@ -5,10 +5,9 @@ import {
   Image,
   StyleSheet,
   Dimensions,
-  Text,
 } from 'react-native';
 import { File } from '@/types';
-import { COLORS, PADDING } from '@/constants/homeConstants';
+import {  PADDING } from '@/constants/homeConstants';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

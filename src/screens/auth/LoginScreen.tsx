@@ -13,10 +13,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { login, setUser } from '@/store/slices/authSlice';
+import { login } from '@/store/slices/authSlice';
 import { LoginHeroHeader } from '@/components/LoginHeroHeader';
 import { APP_CONSTANTS, COLORS } from '@/constants';
-import { User, UserType } from '@/types';
 
 export const LoginScreen: React.FC = () => {
   const navigation = useNavigation();

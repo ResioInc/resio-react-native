@@ -2,13 +2,11 @@ import React from 'react';
 import {
   View,
   Text,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   Linking,
   Alert,
   Image,
-  ImageBackground,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -18,7 +16,6 @@ import { RootStackParamList } from '@/navigation/RootNavigator';
 import {
   COLORS,
   PADDING,
-  CARD_STYLES,
   TYPOGRAPHY,
   ICON_SIZES,
 } from '@/constants/homeConstants';

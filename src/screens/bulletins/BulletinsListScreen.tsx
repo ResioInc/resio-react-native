@@ -12,8 +12,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchBulletins } from '@/store/slices/homeSlice';
+import { useAppSelector } from '@/store';
 import { BulletinListItem } from '@/components/bulletins/BulletinListItem';
 import { Bulletin } from '@/types';
 import { COLORS, PADDING, ICON_SIZES } from '@/constants/homeConstants';
@@ -25,9 +24,7 @@ type RootNavigationProp = StackNavigationProp<RootStackParamList>;
 
 export const BulletinsListScreen: React.FC = () => {
   const navigation = useNavigation<RootNavigationProp>();
-  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { bulletins } = useAppSelector((state) => state.home);
   
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);

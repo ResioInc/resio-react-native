@@ -13,7 +13,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/navigation/RootNavigator';
-import { Event } from '@/types';
 import { COLORS, PADDING } from '@/constants/homeConstants';
 import { useAppDispatch } from '@/store';
 import { setEventRSVP } from '@/store/slices/homeSlice';

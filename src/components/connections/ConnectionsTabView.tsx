@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { linkedAccountsStrings, invitationsStrings, connectionsStrings } from '@/constants/strings';
 import { COLORS, PADDING } from '@/constants/homeConstants';
-import { LinkedAccount, Invitation } from '@/types/home';
+import { LinkedAccount } from '@/types/home';
 
 interface ConnectionsTabViewProps {
   linkedAccounts: LinkedAccount[];

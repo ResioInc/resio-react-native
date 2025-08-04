@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Animated } from 'react-native';
 import { Bulletin } from '@/types';
-import { COLORS, PADDING, CARD_STYLES, TYPOGRAPHY } from '@/constants/homeConstants';
+import { COLORS, PADDING, CARD_STYLES } from '@/constants/homeConstants';
 import { formatRelativeDate, sanitizeFileURL } from '@/utils/utils';
 
 interface BulletinListItemProps {

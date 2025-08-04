@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { WifiState, WifiInfo, WifiConnectionStatus } from '@/types';
+import { WifiState, WifiConnectionStatus } from '@/types';
 import { HomeAPI } from '@services/api/HomeAPI';
 import WifiService from '@/services/wifi/WifiService';
 
@@ -49,7 +49,7 @@ export const connectToWifi = createAsyncThunk(
       if (!wifi.wifiInfo) {
         return rejectWithValue('No WiFi information available');
       }
-            
+
       // Call the actual WiFi service (mimics iOS behavior)
       await WifiService.connectToWifi(wifi.wifiInfo);
       
