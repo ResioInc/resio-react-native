@@ -36,14 +36,11 @@ import { homeStrings } from '@/constants';
 
 type RootNavigationProp = StackNavigationProp<RootStackParamList>;
 
-// TODO: import errors
 // TODO: drag to drop modals
 // TODO: qr code generator
 // TODO: scrolling speed
 
 // When sending an invite, server responds with 500 error on react native but 401 (api key required) on iOS swift
-
-// npx react-native run ios to build and run the app
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<RootNavigationProp>();

@@ -108,10 +108,8 @@ class HomeAPIService extends BaseAPI {
    */
   async getLinkedAccounts(): Promise<LinkedAccount[]> {
     try {
-      console.log('🔗 HomeAPI.getLinkedAccounts - Fetching linked accounts');
       // Match iOS endpoint exactly: /api/v2/users/connections
       const response = await this.get<{ success: boolean; response: LinkedAccount[] }>('/api/v2/users/connections');
-      console.log('🔗 HomeAPI.getLinkedAccounts - API Response:', response);
       return response.response || [];
     } catch (error) {
       console.error('🔗 HomeAPI.getLinkedAccounts - API Error:', error);
@@ -130,13 +128,10 @@ class HomeAPIService extends BaseAPI {
       throw new Error('Invalid account ID parameter');
     }
 
-    try {
-      console.log('🔗 HomeAPI.deleteLinkedAccount - Deleting account ID:', accountId);
-      
+    try {      
       // Match iOS exactly: use invitations endpoint with intent=CANCELLED status
       // iOS enum Status: cancelled = 5
       await this.delete(`/api/v2/users/invitations/${accountId}?intent=${InvitationStatus.CANCELLED}`);
-      console.log('🔗 HomeAPI.deleteLinkedAccount - Successfully deleted account');
     } catch (error) {
       console.error('🔗 HomeAPI.deleteLinkedAccount - API Error:', error);
       // Re-throw with sanitized error message for security
@@ -150,10 +145,8 @@ class HomeAPIService extends BaseAPI {
    */
   async getInvitations(): Promise<Invitation[]> {
     try {
-      console.log('📨 HomeAPI.getInvitations - Fetching invitations');
       // Match iOS endpoint exactly: /api/v2/users/invitations
       const response = await this.get<{ success: boolean; response: Invitation[] }>('/api/v2/users/invitations');
-      console.log('📨 HomeAPI.getInvitations - API Response:', response);
       return response.response || [];
     } catch (error) {
       console.error('📨 HomeAPI.getInvitations - API Error:', error);
@@ -173,10 +166,8 @@ class HomeAPIService extends BaseAPI {
     }
 
     try {
-      console.log('📨 HomeAPI.acceptInvitation - Accepting invitation ID:', invitationId);
       // Match iOS: PUT /api/v2/users/invitations/{id} with status: ACCEPTED
       await this.put(`/api/v2/users/invitations/${invitationId}`, { status: InvitationStatus.ACCEPTED });
-      console.log('📨 HomeAPI.acceptInvitation - Successfully accepted invitation');
     } catch (error) {
       console.error('📨 HomeAPI.acceptInvitation - API Error:', error);
       // Re-throw with sanitized error message for security
@@ -195,11 +186,9 @@ class HomeAPIService extends BaseAPI {
     }
 
     try {
-      console.log('📨 HomeAPI.declineInvitation - Declining invitation ID:', invitationId, 'sender:', sender);
       // Match iOS logic: status = sender ? .cancelled : .declined
       const status = sender ? InvitationStatus.CANCELLED : InvitationStatus.DECLINED;
       await this.delete(`/api/v2/users/invitations/${invitationId}?intent=${status}`);
-      console.log('📨 HomeAPI.declineInvitation - Successfully declined invitation');
     } catch (error) {
       console.error('📨 HomeAPI.declineInvitation - API Error:', error);
       // Re-throw with sanitized error message for security
@@ -221,10 +210,8 @@ class HomeAPIService extends BaseAPI {
     }
 
     try {
-      console.log('📨 HomeAPI.sendInvitation - Sending invitation to:', email);
       // Match iOS endpoint: POST /api/v2/users/invitations
       await this.post('/api/v2/users/invitations', { email, message });
-      console.log('📨 HomeAPI.sendInvitation - Successfully sent invitation');
     } catch (error) {
       console.error('📨 HomeAPI.sendInvitation - API Error:', error);
       
@@ -234,9 +221,7 @@ class HomeAPIService extends BaseAPI {
         const apiError = error as any;
         const statusCode = apiError.code; // "409", "500", etc.
         const errorMessage = apiError.message;
-        
-        console.log('📨 HomeAPI.sendInvitation - Status Code:', statusCode, 'Message:', errorMessage);
-        
+                
         // For 409 (conflict), show a user-friendly duplicate invitation message
         if (statusCode === '409' || statusCode === 409) {
           throw new Error('This person has already been invited');
@@ -269,13 +254,10 @@ class HomeAPIService extends BaseAPI {
     }
 
     try {
-      console.log('📶 HomeAPI.getUnitInfo - Fetching WiFi info for lease ID:', leaseId);
       // Match iOS endpoint exactly: /api/v2/users/unit-information/{leaseId}
       const response = await this.get<{ success: boolean; response: UnitInfoResponse }>(
         `/api/v2/users/unit-information/${leaseId}`
       );
-      console.log('📶 HomeAPI.getUnitInfo - API Response:', response);
-      console.log('📶 HomeAPI.getUnitInfo - Response structure:', JSON.stringify(response.response, null, 2));
       return response.response || {};
     } catch (error) {
       console.error('📶 HomeAPI.getUnitInfo - API Error:', error);
@@ -287,7 +269,6 @@ class HomeAPIService extends BaseAPI {
         const statusCode = apiError.code;
         
         if (statusCode === '404' || statusCode === 404) {
-          console.log('📶 HomeAPI.getUnitInfo - No unit information found (404) - treating as no WiFi info available');
           return {}; // Return empty response, which will result in null WiFi info
         }
       }

@@ -1,13 +1,6 @@
 import { WifiInfo, WifiConnectionStatus } from '@/types';
 import { Platform, Linking } from 'react-native';
 
-// Development-only logging utility
-const devLog = (message: string, ...args: any[]) => {
-  if (__DEV__) {
-    console.log(message, ...args);
-  }
-};
-
 /**
  * WiFi Service for managing WiFi connections
  * Based on iOS WifiService.swift functionality
@@ -66,7 +59,6 @@ class WifiService {
    * Update connection status (for manual updates)
    */
   updateConnectionStatus(status: WifiConnectionStatus): void {
-    console.log('📶 WifiService updateConnectionStatus:', status);
     this.notifyListeners(status);
   }
 
@@ -82,17 +74,13 @@ class WifiService {
     
     // Clear all listeners
     this.listeners = [];
-    
-    devLog('📶 WifiService cleaned up');
   }
 
   /**
    * Simulate WiFi connection process
    * Matches iOS behavior: simulator vs device
    */
-  async connectToWifi(wifiInfo: WifiInfo): Promise<void> {
-    console.log('📶 WifiService connectToWifi - SSID:', wifiInfo.ssid);
-    
+  async connectToWifi(wifiInfo: WifiInfo): Promise<void> {    
     try {
       // Set status to connecting immediately
       this.notifyListeners(WifiConnectionStatus.CONNECTING);
@@ -100,7 +88,7 @@ class WifiService {
       // Simulate iOS behavior based on environment
       if (__DEV__) {
         // Development/simulator: immediate toggle (like iOS simulator)
-        devLog('📶 WifiService (DEV) - Simulating immediate connection');
+        console.log('📶 WifiService (DEV) - Simulating immediate connection');
         
         // Clear any existing timeout
         if (this.connectionTimeoutId) {
@@ -129,9 +117,7 @@ class WifiService {
    * Simulate WiFi disconnection
    * Matches iOS behavior: simulator vs device
    */
-  async disconnectFromWifi(ssid: string): Promise<void> {
-    console.log('📶 WifiService disconnectFromWifi - SSID:', ssid);
-    
+  async disconnectFromWifi(ssid: string): Promise<void> {    
     try {
       if (__DEV__) {
         // Development/simulator: immediate toggle (like iOS simulator)

@@ -33,12 +33,7 @@ export const WifiConnectionScreen: React.FC = () => {
     // Clear any previous errors
     dispatch(clearError());
     
-    // Fetch WiFi info on mount - require valid lease ID
-    console.log('📶 WifiConnectionScreen - User object:', user);
-    console.log('📶 WifiConnectionScreen - Current lease ID:', user?.currentLeaseId);
-    
     if (user?.currentLeaseId) {
-      console.log('📶 WifiConnectionScreen - Fetching WiFi info for lease ID:', user.currentLeaseId);
       dispatch(fetchWifiInfo(user.currentLeaseId));
     } else {
       console.warn('📶 WifiConnectionScreen - No current lease ID available for user');
@@ -48,7 +43,6 @@ export const WifiConnectionScreen: React.FC = () => {
     // Subscribe to WiFi service status changes
     const unsubscribe = WifiService.addConnectionStatusListener((status) => {
       // Update Redux store when service status changes
-      console.log('📶 WifiConnectionScreen - Status update from service:', status);
       dispatch(updateConnectionStatus(status));
     });
 

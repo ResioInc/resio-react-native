@@ -20,13 +20,10 @@ export const fetchWifiInfo = createAsyncThunk(
       }
 
       const unitInfo = await HomeAPI.getUnitInfo(leaseId);
-      console.log('📶 WiFi fetchWifiInfo - Raw unitInfo:', unitInfo);
-      console.log('📶 WiFi fetchWifiInfo - unitInfo keys:', Object.keys(unitInfo));
       
       // Handle backend's hyphenated key structure
       const wifiInfo = unitInfo['unit-info']?.wifi || unitInfo.unitInfo?.wifi || null;
       
-      console.log('📶 WiFi fetchWifiInfo - Parsed WiFi info:', wifiInfo);
       return wifiInfo;
     } catch (error) {
       return rejectWithValue(
@@ -39,7 +36,6 @@ export const fetchWifiInfo = createAsyncThunk(
 export const updateConnectionStatus = createAsyncThunk(
   'wifi/updateConnectionStatus',
   async (status: WifiConnectionStatus) => {
-    console.log('📶 WiFi updateConnectionStatus - Status:', status);
     return status;
   }
 );
@@ -53,9 +49,7 @@ export const connectToWifi = createAsyncThunk(
       if (!wifi.wifiInfo) {
         return rejectWithValue('No WiFi information available');
       }
-
-      console.log('📶 WiFi connecting to network:', wifi.wifiInfo.ssid);
-      
+            
       // Call the actual WiFi service (mimics iOS behavior)
       await WifiService.connectToWifi(wifi.wifiInfo);
       
@@ -80,8 +74,6 @@ export const disconnectFromWifi = createAsyncThunk(
       if (!wifi.wifiInfo) {
         return rejectWithValue('No WiFi information available');
       }
-
-      console.log('📶 WiFi disconnecting from network:', wifi.wifiInfo.ssid);
       
       // Call the actual WiFi service (mimics iOS behavior)
       await WifiService.disconnectFromWifi(wifi.wifiInfo.ssid);
@@ -105,7 +97,6 @@ const wifiSlice = createSlice({
     },
     setConnectionStatus: (state, action) => {
       state.connectionStatus = action.payload;
-      console.log('📶 WiFi setConnectionStatus - Status updated to:', action.payload);
     },
     clearWifiInfo: (state) => {
       state.wifiInfo = null;

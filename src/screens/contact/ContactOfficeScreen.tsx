@@ -144,19 +144,6 @@ export const ContactOfficeScreen: React.FC = () => {
     });
   };
 
-  // Debug: Log the property data structure
-  React.useEffect(() => {
-    console.log('ContactOffice - Full user object:', JSON.stringify(user, null, 2));
-    console.log('ContactOffice - Property object:', JSON.stringify(property, null, 2));
-    if (property?.address) {
-      console.log('ContactOffice - Address object:', JSON.stringify(property.address, null, 2));
-    } else {
-      console.log('ContactOffice - Address is undefined/null');
-    }
-  }, [user, property]);
-
-  // Phone formatting function imported from utils
-
   // Format address string like iOS - API returns address as string!
   const formatAddress = (address: any): string | null => {
     if (!address) return null;
